@@ -19,13 +19,13 @@ In this post, we peel back the abstraction layers by performing a rigorous mathe
 
 ## The Computation Graph
 
-![image](../../../assets/posts/2_layer_nn_mathdive/computation_graph.png)
+![image](assets/posts/2_layer_nn_mathdive/computation_graph.png)
 
 *Notice that at various nodes in the graph, I have extended the layer input matrices to include a column vector of 1s, this is to accommodate bias and weight calculations together making the process a little less tedious!*
 
 ## Forward Pass
 ### Input
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/input.png){: w="200"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/input.png){: w="200"}
 
 We start off with an input batch of Images:
 
@@ -36,7 +36,7 @@ We start off with an input batch of Images:
 
 ### Hidden Layer 1
 #### Linear Transformation
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/hidden_layer_1_linear_transformation.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/hidden_layer_1_linear_transformation.png){: w="400"}
 
 - The very first forward step in the network involves transforming each sample in the input batch from its input dimension $784$ to the representational size of the first hidden layer $h_1$. By practice, this involves a linear transformation with a weight matrix $W_1$ followed by adding a bias $b_1$. Although intuitive enough, let’s walk through the sizes of all of these matrices for our example:
     - $X \in \mathbb{R}^{N \times 784}$
@@ -57,7 +57,7 @@ We start off with an input batch of Images:
     $T_1 = X' W'_1 = [X \ | \ \mathbf{1}] \begin{bmatrix} W_1 \\ b_1 \end{bmatrix} = XW_1 + \mathbf{1}b_1$
 
 #### Sigmoid Activation
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/hidden_layer_1_sigmoid_activation.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/hidden_layer_1_sigmoid_activation.png){: w="400"}
 - This step involves a simple element level operation! We transform each element $t_{ij}$ of the matrix $T_1$ to $\large \tfrac{1}{1 + e^{-t_{ij}}}$.
 - As this is an element level operation, the size of the resulting matrix post activation still remains the same!
     
@@ -65,7 +65,7 @@ We start off with an input batch of Images:
 
 ### Hidden Layer 2
 #### Linear Transformation (Logits)
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/hidden_layer_2_linear_transformation_logits.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/hidden_layer_2_linear_transformation_logits.png){: w="400"}
 - The math here is very similar to the linear transformation step we discussed in detail for the previous hidden layer.
 - As this is the final layer affecting a layer size change in the network (in case this isn’t clear, please read through till the end of the forward pass explanation!) $h_2$ below effectively will correspond to number of classes we wish to classify our input images into.
 - Although intuitive enough, let’s walk through the sizes of all matrices involved in this step too:
@@ -81,7 +81,7 @@ We start off with an input batch of Images:
 - We now have our ***logits** (Unnormalized class output probabilities)*!
 
 #### Softmax Activation (Raw > Probability Distribution)
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/hidden_layer_2_softmax_activation.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/hidden_layer_2_softmax_activation.png){: w="400"}
 - Unlike the previous activation function, softmax is not a element level operation, however it doesn’t lead to any dimensionality change! To visually capture what this transformation looks like for a given sample layer from our hidden layer batch, consider:
     - The $ith$ row in $T_3$ (which is effectively the second layer hidden output for the $i^{th}$ image):
         
@@ -94,7 +94,7 @@ We start off with an input batch of Images:
 - The resulting matrix $T_4$ has dimensions same as $T_3$ i.e., $N×h_2$, with elements updated as discussed above.
 
 ## Cross Entropy Loss
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/cross_entropy_loss.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/cross_entropy_loss.png){: w="400"}
 
 As we now have normalized probability outputs for all classes and all batches, we can now calculate loss! As we are building a multi-class classifier, the ideal loss function here would be Cross-Entropy loss. Let’s take a look at what this loss looks like for one sample in our prediction output batch.
 
@@ -122,7 +122,7 @@ Let’s calculate first partial gradient on our journey backwards! (For obvious 
 
 - Looking at the very last step of the forward pass, we have:
 
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/backprop_prob_dist_t4_logits_t3.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/backprop_prob_dist_t4_logits_t3.png){: w="400"}
 
 - And as we already know:
     
@@ -146,7 +146,7 @@ Let’s calculate first partial gradient on our journey backwards! (For obvious 
 ### Probability Distribution (T4) → Logits (T3)
 Moving a step back in the graph, we reach: ($T_3 \rightarrow \texttt{softmax} \rightarrow T_4$):
 
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/backprop_prob_dist_t4_logits_t3.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/backprop_prob_dist_t4_logits_t3.png){: w="400"}
 
 - By chain rule, we can calculate:
     
@@ -186,7 +186,7 @@ Moving a step back in the graph, we reach: ($T_3 \rightarrow \texttt{softmax} \r
     (Hence, the gradient / jacobian dimensions match the node size! Phew!)
 
 ### Cross Entropy (Loss) →  Logits (T3) (Direct Jump, Simplification!)
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/backprop_loss_logits_t3.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/backprop_loss_logits_t3.png){: w="400"}
 
 That was quite a lot of math, could we have simplified it? It turns out yes! We will now derive a very famous result, which helps us directly calculate $\large \tfrac{\partial \texttt{Loss}}{\partial T_3}$!
 
@@ -226,7 +226,7 @@ $$\large \tfrac{\partial \texttt{Loss}}{\partial T_3} = \begin{bmatrix}
 \end{bmatrix} \in \mathbb{R}^{N\times h_2}$$
 
 ### Logits (T3) → Hidden Layer 1 (T2) and Second Layer Weights ($$W2\_b2$$)
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/backprop_logits_t3_t2_w2_b2.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/backprop_logits_t3_t2_w2_b2.png){: w="400"}
 
 Now that we have the gradient of the Loss with respect to the logits, $\frac{\partial \text{Loss}}{\partial T_3}$, we can take another step back. The logits $T_3$, were calculated from the first hidden layer's activated output $T_{2_{ext}}$ *and the second layer's weights* $$W{2\_b2}$$.
 
@@ -265,7 +265,7 @@ Since $$T_{2_{ext}}$$ *was just* $$T_2$$ *with a column of ones concatenated, th
 
 ### Hidden Layer 1 Activation ($T_2$) → Hidden Layer 1 Linear ($T_1$)
 
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/backprop_t2_t1.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/backprop_t2_t1.png){: w="400"}
 
 This step involves back-propagating through the Sigmoid activation function.
 
@@ -281,7 +281,7 @@ $\frac{\partial \text{Loss}}{\partial T_1} = \frac{\partial \text{Loss}}{\partia
 All matrices involved here ($\frac{\partial \text{Loss}}{\partial T_1}$, $\frac{\partial \text{Loss}}{\partial T_2}$, and $T_2$) have the same dimensions, $\mathbb{R}^{N \times h_1}$, as expected for an element-wise operation.
 
 ### Hidden Layer 1 Linear ($T_1$) → Input ($X$) and First Layer Weights ($$W_1\_b1$$)
-![Desktop View](../../../assets/posts/2_layer_nn_mathdive/backprop_t1_x1_w1_b1.png){: w="400"}
+![Desktop View](assets/posts/2_layer_nn_mathdive/backprop_t1_x1_w1_b1.png){: w="400"}
 
 This is our final back-propagation step, where we calculate the gradients for the first layer's weights and biases. The math is identical to the step for the second layer.
 
