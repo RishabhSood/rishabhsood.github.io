@@ -32,4 +32,4 @@ I am Rishabh Sood, a highly motivated Software Development Engineer with a solid
 
 ## Resume
 
-Refer to [Linkedin](https://www.linkedin.com/in/rishabhsood2/) or [pdf](assets/info/cv_rishabhpdf).
+Refer to [Linkedin](https://www.linkedin.com/in/rishabhsood2/) or [pdf](assets/info/cv_rishabh.pdf).
