@@ -120,8 +120,8 @@ comments:
     issue_term: # < url | pathname | title | ...>
   # Giscus options › https://giscus.app
   giscus:
-    repo: RishabhSood/encode.rs # <gh-username>/<repo>
-    repo_id: R_kgDOQieg2w
+    repo: RishabhSood/rishabhsood.github.io # <gh-username>/<repo>
+    repo_id: R_kgDOQipXtQ
     category: General
     category_id: DIC_kwDOQieg284CzZIN
     mapping: # optional, default to 'pathname'
