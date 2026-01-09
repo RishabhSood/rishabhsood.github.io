@@ -1170,4 +1170,126 @@ A concrete example of approximate DP. At each iteration $k$:
 {: .prompt-info }
 
 ### Contraction Mapping
-> Coming Soon $\cdots$ well atleast I hope so :p
+> This section provides the theoretical foundation for *why* DP algorithms converge. The key questions we answer:
+> - How do we know value iteration converges to $v_*$?
+> - How do we know iterative policy evaluation converges to $v_\pi$?
+> - Is the solution unique?
+> - How fast do these algorithms converge?
+{: .prompt-info }
+
+#### Value Function Space
+Consider the vector space $\mathcal{V}$ over value functions:
+- There are $$\| \mathcal{S} \|$$ dimensions (one per state)
+- Each point in this space fully specifies a value function $v(s)$
+
+**Key question:** What does a Bellman backup do to points in this space?
+
+We will show that it brings value functions *closer* together, and therefore the backups must converge to a unique solution.
+
+#### Value Function $\infty$-Norm
+We measure distance between state-value functions $u$ and $v$ using the **$\infty$-norm** (max norm):
+
+$$\|u - v\|_\infty = \underset{s \in \mathcal{S}}{\text{max}} \ |u(s) - v(s)|$$
+
+This captures the largest difference between any two state values.
+
+#### Bellman Expectation Backup is a Contraction
+##### <u>What is the Bellman Backup Operator?</u>
+Recall that in iterative policy evaluation, we repeatedly apply the Bellman expectation equation to update our value function. We can think of this update as an **operator**: a function that takes one value function and produces another.
+
+Define the **Bellman expectation backup operator** $T^\pi$:
+
+$$T^\pi(v) = \mathcal{R}^\pi + \gamma \mathcal{P}^\pi v$$
+
+**What does this mean?** Given any value function $v$, applying $T^\pi$ produces a new value function by:
+1. Taking the expected immediate reward $\mathcal{R}^\pi$ under policy $\pi$
+2. Adding the discounted ($\gamma$) expected value of successor states ($\mathcal{P}^\pi v$)
+
+This is exactly what we do in each iteration of policy evaluation, we're just writing it compactly as an operator.
+
+##### <u>What is a Contraction?</u>
+Intuitively, a **contraction** is an operator that brings things *closer together*. Imagine two different value function estimates $u$ and $v$ as two points in space. If we apply a contraction operator to both, the resulting points $T(u)$ and $T(v)$ will be *closer* to each other than $u$ and $v$ were originally.
+
+More precisely, a **$\gamma$-contraction** satisfies:
+
+$$\|T(u) - T(v)\| \leq \gamma \|u - v\| \quad \text{where } \gamma < 1$$
+
+The distance after applying $T$ is at most $\gamma$ times the original distance. Since $\gamma < 1$, the distance shrinks with each application.
+
+##### <u>Proving $T^\pi$ is a $\gamma$-Contraction</u>
+Let's show that no matter which two value functions $u$ and $v$ we start with, applying $T^\pi$ to both brings them closer:
+
+$$
+\begin{aligned}
+\|T^\pi(u) - T^\pi(v)\|_\infty &= \|(\mathcal{R}^\pi + \gamma \mathcal{P}^\pi u) - (\mathcal{R}^\pi + \gamma \mathcal{P}^\pi v)\|_\infty \\
+&= \|\gamma \mathcal{P}^\pi (u - v)\|_\infty && \text{(rewards cancel out)} \\
+&\leq \|\gamma \mathcal{P}^\pi\| \|u - v\|_\infty && \text{(norm property)} \\
+&\leq \gamma \|u - v\|_\infty && \text{(since } \|\mathcal{P}^\pi\| \leq 1 \text{)}
+\end{aligned}
+$$
+
+> **Why is $\|\mathcal{P}^\pi\| \leq 1$?** Because $\mathcal{P}^\pi$ is a stochastic matrix (rows sum to 1). Multiplying by it computes a weighted average, which can never increase the maximum value, ergo it can only shrink or preserve it.
+{: .prompt-tip }
+
+**The key insight:** The discount factor $\gamma < 1$ is doing the heavy lifting here. Every time we apply $T^\pi$, we multiply the "difference" between value functions by $\gamma$, guaranteeing it shrinks.
+
+#### Contraction Mapping Theorem
+Now we can state the powerful theorem that guarantees convergence:
+
+> **Theorem (Contraction Mapping Theorem):**
+>
+> For any metric space $\mathcal{V}$ that is complete (i.e., closed) under an operator $T(v)$, where $T$ is a $\gamma$-contraction:
+> - $T$ converges to a **unique fixed point**
+> - At a **linear convergence rate** of $\gamma$
+{: .prompt-warning }
+
+**Why does this guarantee convergence?** Think about it this way:
+- Start with any initial guess $v_0$
+- Apply $T$ repeatedly: $v_1 = T(v_0)$, $v_2 = T(v_1)$, ...
+- Each application shrinks the distance to the true solution by factor $\gamma$
+- After $k$ iterations, the error is at most $\gamma^k$ times the initial error
+- Since $\gamma < 1$, this goes to zero as $k \to \infty$
+
+**Why is the fixed point unique?** 
+
+If there were two fixed points $$v^{*}$$ and $$u^{*}$$, then:
+- $$T(v^{*}) = v^{*}$$ and $$T(u^{*}) = u^{*}$$. 
+But the contraction property says $$\|T(v^{*}) - T(u^{*})\| \leq \gamma \|v^{*} - u^{*}\|$$, which means:
+- $$\|v^{*} - u^{*}\| \leq \gamma \|v^{*} - u^{*}\|$$. 
+
+Since $$\gamma < 1$$, this is only possible if $$\|v^{*} - u^{*}\| = 0$$, i.e., they're the same point.
+
+#### Convergence of Policy Evaluation & Policy Iteration
+Applying the contraction mapping theorem to the Bellman expectation operator:
+- The Bellman expectation operator $T^\pi$ has a unique fixed point
+- $v_\pi$ is a fixed point of $T^\pi$ (by Bellman expectation equation)
+- By the contraction mapping theorem:
+  - **Iterative policy evaluation** converges to $v_\pi$
+  - **Policy iteration** converges to $v_*$
+
+#### Bellman Optimality Backup is a Contraction
+Define the **Bellman optimality backup operator** $T^*$:
+
+$$T^*(v) = \underset{a \in \mathcal{A}}{\text{max}} \ \mathcal{R}^a + \gamma \mathcal{P}^a v$$
+
+This operator is also a **$\gamma$-contraction** (proof similar to above):
+
+$$\|T^*(u) - T^*(v)\|_\infty \leq \gamma \|u - v\|_\infty$$
+
+#### Convergence of Value Iteration
+Applying the contraction mapping theorem to the Bellman optimality operator:
+- The Bellman optimality operator $T^*$ has a unique fixed point
+- $$v_*$$ is a fixed point of $$T^*$$ (by Bellman optimality equation)
+- By the contraction mapping theorem:
+  - **Value iteration** converges to $v_*$
+
+
+## Lecture 4: Model-Free Prediction
+[Official Lecture Slides](https://davidstarsilver.wordpress.com/wp-content/uploads/2025/04/lecture-4-model-free-prediction-.pdf)
+
+> Notes Coming out Soon ...
+{: .prompt-info}
+<!-- ### Introduction
+### Monte-Carlo Learning
+### Temporal-Difference Learning
+### $\text{TD}(\lambda)$ -->
