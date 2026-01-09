@@ -39,7 +39,8 @@ description: Lecture Notes from David Silver's RL Series on youtube
 - Manage an investment portfolio
 - Control a power station
 - Make a humanoid robot walk
-- [Play many different Atari games better than humans](https://youtu.be/TmPfTpjtdgg?si=WQlpzl3jFo3ri6q8)
+- Play many different Atari games better than humans
+  {% include embed/youtube.html id='TmPfTpjtdgg' %}
 
 ### The Reinforcement Learning Problem
 #### Rewards
@@ -93,7 +94,7 @@ At each step $t$:
     - Emits scalar reward $R_{t+1}$
 - $t$ increments at env step.
 
-Thus, the trial and error loop that we define for Reinforcement Learning is basically a time series of observations, rewards and actions, which in turn defines the experience of an agent (which is the data we then use for reinforcement leanring).
+Thus, the trial and error loop that we define for Reinforcement Learning is basically a time series of observations, rewards and actions, which in turn defines the experience of an agent (which is the data we then use for reinforcement learning).
 
 #### History & State
 This stream of experience which comes in, i.e. the sequence of observations (all observable variables up till time `t` / incoming sensorimotor stream of the agent), actions & rewards is called `history`, and is denoted as:
@@ -111,18 +112,18 @@ Formally, state is defined as a function of the history:
 $$S_t = f(H_t)$$
 
 #### Definitions of State
-##### <span style="color: grey;"><u>Environment State</u></span>
+##### <u>Environment State</u>
 - The information that's used within the environment to decide what happens next, i.e. the environment's private representation: $S_t^e$. In other words whatever data the environment uses to pick the next observation/reward.
 - This state is not usually visible to the agent. 
 
 Hence, the environment state is more of a formalism, which helps us build the algorithms for our agent. Even if the environment state is visible, it might not directly contain relevant information for the agent to make good decisions.
-##### <span style="color: grey;"><u>Agent State</u></span>
-The agent state $S_t^a$ is a set of numbrs that capture exactly what's happened to the agent so far, summarize what's gone on, what it's seen so far and use those numbers to basically pick the next action. How we choose to process those observations and what to remember and what to throw away builds this state's representation. It can be any function of the history:
+##### <u>Agent State</u>
+The agent state $S_t^a$ is a set of numbers that capture exactly what's happened to the agent so far, summarize what's gone on, what it's seen so far and use those numbers to basically pick the next action. How we choose to process those observations and what to remember and what to throw away builds this state's representation. It can be any function of the history:
 
 $$S_t^a = f(H_t)$$
 
 This is the information (agent state) used by RL algorithms.
-##### <span style="color: grey;"><u>Information / Markov State</u></span>
+##### <u>Information / Markov State</u>
 An information state (a.k.a Markov state) contains all useful information of the history.
 
 > **Definition (Markov State):**
@@ -138,10 +139,10 @@ An information state (a.k.a Markov state) contains all useful information of the
 
 $$H_{1:t} \rightarrow S_t \rightarrow H_{t+1:\infty}$$
 
-- The environmnt state $S_t^e$ is Markov.
+- The environment state $S_t^e$ is Markov.
 - The history $H_t$ is also Markov (although inefficient). Hence it's always possible to have a markov state, the question in practice is just how do we find that useful/efficient representation.
 
-##### <span style="color: grey;"><u>Rat Example</u></span>
+##### <u>Rat Example</u>
 Consider the following classic, scientist-rat experiment scenario, say the rat observes these two sequences / experiences:
 ![S1: LT LT LV BL ZAP | S2: BL LT LV LV CH](assets/posts/david_silver_rl/lec1_rat_exepriences_observed.png)
 
@@ -195,8 +196,8 @@ $$v_\pi(S) = \mathbb{E}_\pi[R_t + \gamma \cdot R_{t+1} + \gamma^2 \cdot R_{t+2} 
 *The behavior that maximizes this value, is the one that correctly trades off agent's risk so as to get the maximum amount of reward going into the future.*
 (Notice that the value function depends on the policy chosen $\pi$, here $\gamma \in [0,1]$ is the discount factor that determines how much we value future rewards vs immediate rewards)
 
-> Example: DQN Value Function in Atari [Video Lecture](https://youtu.be/2pWv7GOvuf0?si=71ljntBYOgoGzhRi&t=3732) (1:02:12 - 1:04:36)
-{: .prompt-tip }
+Example: DQN Value Function in Atari (1:02:12 - 1:04:36)
+<iframe class="embed-video" loading="lazy" src="https://www.youtube.com/embed/2pWv7GOvuf0?start=3732" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 #### Model
 A model is basically not the environment itself but an estimate of what the environment might do. Hence, the agent tries and learns the behavior of the environment and then uses that model of the environment to help make a plan to help figure out what to do next. Generally, this model has two parts:
@@ -287,7 +288,7 @@ Reinforcement learning is like trial-and-error learning, we expect the agent to 
 
 ### Markov Processes / Chain
 #### Introduction
-##### <span style="color: grey;"><u> Introduction to MDPs </u></span>
+##### <u> Introduction to MDPs </u>
 Markov Decision Processes are a formal definition of the environment that the agent interacts with, applying only to the cases where the [environment is fully observable](#fully-observable-environments).
 
 In other words, the current state of the environment given to the agent completely characterizes this process (the way in which the environment unfolds depends on it). Almost all RL Problems an be formalized as MDPs, examples:
@@ -299,7 +300,7 @@ In other words, the current state of the environment given to the agent complete
 ##### [Markov Property](#information--markov-state)
 *(already covered in Lecture 1, click on the shortcut above to refresh the concept!)*
 
-##### <span style="color: grey;"><u>State Transition Matrix</u></span>
+##### <u>State Transition Matrix</u>
 Given a markov state $s$ and a successor state $s'$, the *state transition probability is defined by:
 
 $$\mathcal{P}_{ss'} = \mathbb{P}[S_{t+1} = s' \mid S_t = s]$$
@@ -318,8 +319,8 @@ $$
 
 Where, by the law of probability, each row sums to 1.
 
-##### <span style="color: grey;"><u>Markov Process / Chain</u></span>
-A Markov process is a memoryless random process, i.e. a sequence of random states $S1, S2, \cdots$ with the Markov property.
+##### <u>Markov Process / Chain</u>
+A Markov process is a memoryless random process, i.e. a sequence of random states $S_1, S_2, \cdots$ with the Markov property.
 > **Definition (Markov Process):**
 >
 >A *Markov Process (or Markov Chain)* is a tuple $\langle\textcolor{pink}{\mathbfcal{S}, \mathbfcal{P}}\rangle$, where:
@@ -329,7 +330,7 @@ A Markov process is a memoryless random process, i.e. a sequence of random state
 >   $$\color{pink}\mathcal{P}_{ss'} = \mathbb{P}[S_{t+1} = s' \mid S_t = s]$$
 {: .prompt-info }
 
-##### <span style="color: grey;"><u>Example: Student Markov Chain</u></span>
+##### <u>Example: Student Markov Chain</u>
 ![Student Markov Process Example from Lecture](assets/posts/david_silver_rl/lec2_markov_process_example.png){: w="350"}
 
 Notice that, "Sleep" is a terminal state which indefinitely keeps looping back to itself. Based on the above example chain, we can draw out sample **episodes**, starting from say $S_1 = C_1$:
@@ -399,7 +400,7 @@ A Markov Reward Process is a Markov Chain with value judgements (saying how much
 > - $\gamma$ close to 1 leads to: *farisghted evaluation*
 {: .prompt-info }
 
-##### <span style="color: grey;"><u>Why Discount?</u></span>
+##### <u>Why Discount?</u>
 - It's Mathematically convenient to discount rewards, avoids infinite returns in cyclic Markov processes too
 - Uncertainty about the future may not be fully represented (i.e. we are uncertain about the accuracy of our model, and hence choose to trust later predicted rewards less)
 - Animal/human behaviour shows preference for immediate reward (ex: financial rewards).
@@ -415,7 +416,7 @@ The value function $v(s)$ gives the long-term value of state s (i.e. the expecte
 > 
 > $$v(s) = \mathbb{E}[G_t \mid S_t = s]$$
 {: .prompt-info}
-##### <span style="color: grey;"><u>Example</u></span>
+##### <u>Example</u>
 Sample returns for Student MRP, Starting from $S_1 = C_1$ with $\gamma=\frac{1}{2}$:
 ![Return Value Example from the lecture](assets/posts/david_silver_rl/lec2_return_value_example.png)
 (Although the selected episodes for which the returns are calculated are random, but the calculated values for these states individually (next figure) won't be a random quantity, as it's an expectation over these random quantities.)
@@ -439,16 +440,17 @@ $$
 > (The transition from the second last to last step comes from the law of expected iterations, which states that the overall expected value of a random variable $X$, $\mathbb{E}[X]$, can be found by first taking the conditional expectation of $X$ given another variable $Y$, $\mathbb{E}[X\mid Y]$, and then averaging these conditional expectations over all possible values of $Y$. Mathematically, this is expressed as $E[X]=E[E[X\mid Y]]$)
 
 We do one-step lookaheads, by moving one step ahead from current state, take an average of all possible outcomes (with transition probabilities) together, which gives us the value function at the current step.
-$$v(s) = \mathcal{R}_s + \sum_{s' \in S} \mathcal{P}_{ss'}\cdot v(s')$$
+
+$$v(s) = \mathcal{R}_s + \gamma\sum_{s' \in S} \mathcal{P}_{ss'}\cdot v(s')$$
 
 Here is a backup diagram ([what's a backup diagram?](https://towardsdatascience.com/all-about-backup-diagram-fefb25aaf804/)) of this process:
 ![Value Function Backup Diagram](assets/posts/david_silver_rl/lec2_value_function_backup_diagram.png){: w="350"}
 
-##### <span style="color: grey;"><u>Student MRP Example</u></span>
+##### <u>Student MRP Example</u>
 The below figure shows equivalence of the value at a given state to the immediate reward and a discounted (just 1 in this case) average of lookaheads for a converged value function for the Student MRP with a $\gamma$ factor of 1:
 ![Bellman Equation For Student MRP](assets/posts/david_silver_rl/lec2_mrp_bellman_equation_example.png){: w="350"}
 
-##### <span style="color: grey;"><u>Matrix Representation</u></span>
+##### <u>Matrix Representation</u>
 $$\left[\begin{matrix}v(1)\\\vdots\\v(n)\end{matrix}\right] = \left[\begin{matrix}\mathcal{R}_1\\\vdots\\\mathcal{R}_n\end{matrix}\right] + \gamma \begin{bmatrix}
 \mathcal{P}_{11} & \dots & \mathcal{P}_{1n} \\
 \vdots & \ddots & \vdots \\
@@ -484,7 +486,7 @@ A Markov decision process (MDP) is a Markov reward process with decisions. It is
 >- $\mathcal{P}$ is a state transition probability matrix,
 >
 >   $$\mathcal{P}_{ss'}^\textcolor{pink}{a} = \mathbb{P}[S_{t+1} = s' \mid S_t = s, \textcolor{pink}{A_t = a}]$$ (Notice that the transition probability from one state to another may depend on the selected action too now)
-> - $\mathbfcal{R}$ is a reward function, $$\mathcal{R_s^\textcolor{pink}{a}} = \mathbb{E}[\mathcal{R}_{t+1} \mid S_t = s,\textcolor{pink}{A_t = s}]$$ (Notice that the reward may depend on the selected action too now)
+> - $\mathbfcal{R}$ is a reward function, $$\mathcal{R_s^\textcolor{pink}{a}} = \mathbb{E}[\mathcal{R}_{t+1} \mid S_t = s,\textcolor{pink}{A_t = a}]$$ (Notice that the reward may depend on the selected action too now)
 > - $\boldsymbol\gamma$ is a discount factor, $γ \in [0, 1]$
 {: .prompt-info }
 
@@ -533,7 +535,7 @@ There's a lot more control that the agent can exert now over its path through th
 
 > Note that $\mathbb{E}_{\pi}$ indicates, expected value given that we're sampling from the MDP while following policy $\pi$
 
-##### <span style="color: grey;"><u>Example: State-Value Function for Student MDP</u></span>
+##### <u>Example: State-Value Function for Student MDP</u>
 ![Lecture Example for State-Value Function for Student MDP](assets/posts/david_silver_rl/lec2_state-value_fn_mdp_ex.png){: w="350"}
 
 #### Bellman Expectation Equation
@@ -558,24 +560,24 @@ $$q_{\pi}(s, a) = R_{s}^a + \gamma \sum\limits_{s' \in \mathcal{S}}\mathcal{P_{s
 
 > Notice that, the expected reward coming from the second term is from next step and thus discounted.
 
-##### <span style="color: grey;"><u>Bellman Expectation Equation for $v_{\pi}(s)$</u></span>
+##### <u>Bellman Expectation Equation for $v_{\pi}(s)$</u>
 Combining the above 2 observations, we can now write a recursive relation for the state-value function as:
 ![Bellman Expectation Equation Backup Diagram for State Value Function in MDP](assets/posts/david_silver_rl/lec2_bellman_ee_state_value.png){: width="350"}
 
 $$v_{\pi}(s) = \sum\limits_{a \in \mathcal{A}}\pi(a\mid S)(R_{s}^a + \gamma \sum\limits_{s' \in \mathcal{S}}\mathcal{P_{ss'}^a} v_{\pi}(s'))$$
 
-##### <span style="color: grey;"><u>Bellman Expectation Equation for $q_{\pi}(s,a)$</u></span>
+##### <u>Bellman Expectation Equation for $q_{\pi}(s,a)$</u>
 Similarly, we can now write a recursive relation for the action-value function as:
 ![Bellman Expectation Equation Backup Diagram for Action Value Function in MDP](assets/posts/david_silver_rl/lec2_bellman_ee_action_value.png){: width="350"}
 
 $$q_{\pi}(s, a) = R_{s}^a + \gamma \sum\limits_{s' \in \mathcal{S}}\mathcal{P_{ss'}^a}(\sum\limits_{a' \in \mathcal{A}}\pi(a'\mid s') q_{\pi}(s', a'))$$
 
-##### <span style="color: grey;"><u>Example: Bellman Expectation Equation for Student MDP</u></span>
+##### <u>Example: Bellman Expectation Equation for Student MDP</u>
 ![Bellman Expectation Equation for Student MDP Example](assets/posts/david_silver_rl/lec2_bellman_expectation_eqn_student_mdp.png){: width="350"}
 
 The above example, illustrates verification of the converged value for the state-value function at a given state (Class 3), such that $\pi(a \mid s) = 0.5$ & $\gamma = 1$.
 
-##### <span style="color: grey;"><u>Matrix Representation</u></span>
+##### <u>Matrix Representation</u>
 Alternatively, we can represent the state-value function solution via matrix representation by converting our MDP to MRP, as discussed earlier [here](#solving-the-bellman-equation) and [here](#policies):
 
 $$
@@ -602,7 +604,7 @@ $$
 
 > To study in depth about conditions under which Markov Processes are well-defined refer to Dynamic Programming and Optimal Control (Volume II) by Dimitri P. Bertsekas.
 
-##### <span style="color: grey;"><u>Example: Optimal Value Functions for Student MDP</u></span>
+##### <u>Example: Optimal Value Functions for Student MDP</u>
 ![Optimal State & Value Functions for Student MDP example](assets/posts/david_silver_rl/l2_optimal_sna-value-function-student-mdp.png)
 
 #### Optimal Policy
@@ -626,7 +628,7 @@ $$\pi \ge \pi^*\quad\text{if}\quad v_{\pi}(s) \ge v_{\pi^*}(s) \forall s$$
 >   $$q_{\pi^*}(s, a) = q_{*}(s, a)$$
 {: .prompt-warning }
 
-##### <span style="color: grey;"><u>Finding an Optimal Policy</u></span>
+##### <u>Finding an Optimal Policy</u>
 An optimal policy can be found by maximising over $q_{*}(s,a)$:
 
 $$
@@ -639,7 +641,7 @@ $$
 - There is always an optimal deterministic policy for any MDP
 - If we know $q_{*}(s,a)$, we immediately have the optimal policy
 
-##### <span style="color: grey;"><u>Optimal Policy for student MDP</u></span>
+##### <u>Optimal Policy for student MDP</u>
 ![Optimal Policy for Student MDP](assets/posts/david_silver_rl/lec2_optimal_policy_for_student_mdp.png){: width="450"}
 
 #### Bellman Optimality Equation
@@ -656,7 +658,7 @@ The optimal value functions are recursively related by the Bellman optimality eq
 
     $$q_*(s, a) = \mathcal{R}_s^a + \sum_{s' \in \mathcal{S}} \mathcal{P_{ss'}^a} v_*(s')$$
 
-##### <span style="color: grey;"><u>For $v_*$</u></span>
+##### <u>For $v_*$</u>
 Combining the above 2 observations, we can now write a recursive relation for the optimal state-value function as:
 
 ![Optimal State Value Function, Recursive Relation Backup Diagram](assets/posts/david_silver_rl/lec2_bellman_optimality_eqn_state_value_recursive.png){: width="350"}
@@ -666,7 +668,7 @@ $$v_*(s) = \underset{a \in A}{\text{max}} \ (\mathcal{R}_s^a + \sum_{s' \in \mat
 Here's an example from the Student MDP, illustrating this relation:
 ![Optimal State Value Function, Recursive Relation Student MDP Example](assets/posts/david_silver_rl/lec2_bellman_optimality_eqn_state_value_rec_student_mdp.png){: width="450"}
 
-##### <span style="color: grey;"><u>For $Q^*$</u></span>
+##### <u>For $Q^*$</u>
 Similarly, we can now write a recursive relation for the optimal action-value function as:
 
 ![Optimal Action Value Function, Recursive Relation Backup Diagram](assets/posts/david_silver_rl/lec2_bellman_optimality_eqn_action_value_recursive.png){: width="350"}
@@ -734,19 +736,437 @@ $$q_*(s, a) = \mathcal{R}_s^a + \sum_{s' \in \mathcal{S}} \mathcal{P_{ss'}^a} \ 
   
   For example, in Atari, although the state space is enormous, the reward is simply the game score extracted from the current state. Conceptually, the reward function specifies the task objective and forms a core part of the problem definition. Designing rewards that align optimization with human intent remains an open and active research challenge.
 
-### Extension to MDPs
-> This section is being written and will be up soon (I hope :p)!
-{: .prompt-info}
+### Extensions to MDPs
+> The core MDP framework assumes finite states/actions, discrete time, full observability, and discounted rewards. Real-world problems often violate these assumptions — this section covers how the framework extends to handle such cases.
+{: .prompt-info }
 
-<!-- #### Infinite and continuous MDPs
-#### Partially observable MDPs
-#### Undiscounted, average reward MDPs
+#### Infinite and Continuous MDPs
+- **Infinite state/action spaces** — Straightforward extension of theory (can't enumerate, but math still works)
+- **Continuous state/action spaces** — Requires function approximation; closed-form solutions exist for special cases like *Linear Quadratic Regulator (LQR)*
+- **Continuous time** — Discrete Bellman equation becomes the *Hamilton-Jacobi-Bellman (HJB)* partial differential equation (limit of Bellman as $\Delta t \rightarrow 0$)
 
+#### Partially Observable MDPs (POMDPs)
+##### <u>The Problem</u>
+In many real scenarios, the agent can't see the true state — only noisy or partial observations:
+- A robot using camera images (doesn't know exact position)
+- A trader seeing only public prices (not others' intentions)
+- A poker player seeing only their cards (not opponents' hands)
+
+A POMDP extends an MDP by adding an **observation function** — given the true state and action, what observation does the agent receive?
+
+> **Definition (POMDP):**
+>
+>A *Partially Observable Markov Decision Process* is a tuple $\langle\mathcal{S}, \mathcal{A}, \textcolor{pink}{\mathbfcal{O}}, \mathcal{P}, \mathcal{R}, \textcolor{pink}{\mathbfcal{Z}}, \gamma\rangle$, where:
+>- $\mathcal{S}$ is a (finite) set of states
+>- $\mathcal{A}$ is a (finite) set of Actions
+>- $\textcolor{pink}{\mathbfcal{O}}$ is a (finite) set of observations
+>- $\mathcal{P}$ is a state transition probability matrix,
+>
+>   $$\mathcal{P}_{ss'}^a = \mathbb{P}[S_{t+1} = s' \mid S_t = s, A_t = a]$$
+> - $\mathcal{R}$ is a reward function, $$\mathcal{R_s^a} = \mathbb{E}[\mathcal{R}_{t+1} \mid S_t = s, A_t = a]$$
+>- $\textcolor{pink}{\mathbfcal{Z}}$ is an observation function,
+>
+>   $$\color{pink} \mathcal{Z_{s'o}^{a}} = \mathbb{P}\left[O_{t+1} = o \mid S_{t+1}=s', A_t = a\right]$$
+> - $\boldsymbol\gamma$ is a discount factor, $γ \in [0, 1]$
+{: .prompt-info }
+
+##### <u>How to Solve POMDPs?</u>
+The key insight is that POMDPs can be converted back to MDPs by changing what we call a "state":
+
+| Approach | New "State" | Trade-off |
+|----------|-------------|-----------|
+| **History-based** | $H_t = A_0, O_1, R_1, \cdots, O_t, R_t$ | Always Markov, but grows unboundedly |
+| **Belief-based** | $b(h) = [\mathbb{P}(S_t = s^1 \mid H_t), \cdots, \mathbb{P}(S_t = s^n \mid H_t)]$ | Compact distribution over states; also Markov |
+
+Both history and belief state satisfy the Markov property, so we can treat them as states in a new (larger) MDP:
+
+![History & Belief State Tree](assets/posts/david_silver_rl/lec2_pomdp_history_belief_state_tree.png){: w="450"}
+
+> The catch: this converted MDP has an infinite (or continuous) state space, making it much harder to solve than the original.
+{: .prompt-warning }
+
+#### Undiscounted, Average Reward MDPs
+##### <u>When Discounting Doesn't Make Sense</u>
+For continuing tasks (no terminal state) where we care equally about all time steps, discounting feels arbitrary. Instead, we can optimize the **average reward per step**.
+
+This requires **ergodic MDPs** — where every state is visited infinitely often, without periodic patterns. Think of it as: *"no matter where you start, you'll eventually explore everything."*
+
+> **Definition (Average Reward):**
+>
+> For an ergodic MDP, the average reward $\rho^\pi$ is independent of the starting state:
+>
+> $$\rho^\pi = \lim_{T \rightarrow \infty} \frac{1}{T} \mathbb{E}\left[\sum_{t=1}^T R_t\right]$$
+{: .prompt-info }
+
+##### <u>Average Reward Value Function</u>
+Instead of measuring total discounted reward, we measure how much **better** (or worse) a state is compared to the average:
+
+$$\widetilde{v}_{\pi}(s) = \mathbb{E}_{\pi}\left[\sum_{k=1}^\infty (R_{t+k} - \rho^\pi) \mid S_t = s \right]$$
+
+This leads to an average-reward Bellman equation:
+
+$$\widetilde{v}_{\pi}(s) = \mathbb{E}_{\pi}\left[(R_{t+1} - \rho^\pi) + \widetilde{v}_{\pi}(S_{t+1}) \mid S_t = s \right]$$
+
+> Notice the similarity to the standard Bellman equation — we just subtract the baseline $\rho^\pi$ from each reward.
+{: .prompt-tip }
 
 ## Lecture 3: Planning by Dynamic Programming
+[Official Lecture Slides](https://davidstarsilver.wordpress.com/wp-content/uploads/2025/04/lecture-3-planning-by-dynamic-programming-.pdf)
 ### Introduction
+> **What is Dynamic Programming?**
+>
+>- **Dynamic** refers to the sequential / or temporal component of the problem (changes stepwise).
+>- **Programming** refers to optimizing a "program", i.e. a Policy.
+>
+>In other words, it's a method for solving complex problems, by breaking them up into subproblems, solving those and then combining their solutions into the main solution.
+{: .prompt-info }
+
+#### Requirements for Dynamic Programming
+Dynamic Programming is a very general solution method for problems which have two properties:
+- **Optimal substructure**
+    - Principle of optimality applies:
+        > optimal substructure basically tells you that you can solve some overall Problem by breaking it down into two pieces or more, solving for each of those pieces and that the optimal solution to those pieces tells you how to get the optimal solution to your overall problem.
+    - Optimal solution can be decomposed into subproblems
+- **Overlapping subproblems**
+    - Subproblems recur many times
+    - Solutions can be cached and reused
+
+Markov decision processes satisfy both properties:
+- Bellman Equation ([expectation](#bellman-expectation-equation) & [optimality](#bellman-optimality-equation)) gives recursive decomposition
+- [Value function](#value-function-2) stores and reuses solutions
+
+#### Planning by Dynamic Programming
+Via Dynamic Programming, we aim to solve the **planning problem** which assumes full knowledge of the MDP:
+> This does NOT cover the full reinforcement learning problem (where the environment may be initially unknown)
+
+- We are given: state space, action space, transition dynamics, reward function, and discount factor
+- Goal: Solve the MDP with perfect knowledge of how the environment works
+
+##### <u>Two special cases of planning an MDP:</u>
+1. **Prediction (Policy Evaluation)**
+
+    **Goal:** Evaluate how good a given policy is — determine how much reward we'll get from any state when following policy $\pi$
+
+    - **Input:** MDP $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ + Policy $\pi$
+        - or MRP $\langle \mathcal{S}, \mathcal{P^\pi}, \mathcal{R^\pi}, \gamma \rangle$
+    - **Output:** Value function $v_\pi$
+
+    > Example (Atari): Given the game rules and a specific way of playing (policy), calculate expected score from each game state.
+
+2. **Control (Optimization)**
+
+    **Goal:** Find the best possible policy, i.e. the mapping from states to actions that achieves maximum long-term reward
+    - **Input:** MDP $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$
+    - **Output:** Optimal value function $$v_{*}$$ (or $$q_{*}$$) + Optimal policy $\pi_*$
+
+    > Example (Atari): Given full access to game internals, find the best possible strategy to maximize score.
+
+**Approach:** We typically solve prediction as a subroutine within control, i.e. via first learning to evaluate policies, then using that to find the optimal one.
+
+#### Other Applications of Dynamic Programming
+> Feel free to skim over this subsection / skip it.
+
+Dynamic programming is used to solve many other problems, e.g.
+- Scheduling algorithms
+- String algorithms (e.g. sequence alignment)
+- Graph algorithms (e.g. shortest path algorithms)
+- Graphical models (e.g. Viterbi algorithm)
+- Bioinformatics (e.g. lattice models)
+
 ### Policy Evaluation
+#### Definition
+- **Problem:** evaluate a given policy π
+- **Solution:** iterative application of [Bellman Expectation Equation](#bellman-expectation-equation):
+
+    $$v_1 \rightarrow v_2 \rightarrow \cdots \rightarrow v_\pi$$
+- Using synchronous backups,
+    - At each iteration $k + 1$
+    - For all states $s \in \mathcal{S}$
+    - Update $v_{k+1}(s)$ from $v_{k}(s')$:
+        - where $s'$ is a successor state of $s$.
+    
+> *Asynchronous Backups* and Convergence to $v_\pi$ will be discussed later.
+
+Consider the following backup diagram, which indicates the value function at a given state on iteration step $k+1$, the only difference we see here, compared to the expectation equation diagram is that the value function for next state is taken from the previous iteration step:
+
+![Iterative Policy Evaluation Backup Diagram](assets/posts/david_silver_rl/lec3_it_policy_eval_backup_diagram.png){: width="350"}
+
+From the above diagram, and previously discussed derivations, we come up with the following recursive equations for:
+- MDP ([need a referesher?](#bellman-expectation-equation)):
+
+    $$v_{k+1}(s) = \sum\limits_{a \in \mathcal{A}}\pi(a\mid S)(R_{s}^a + \gamma \sum\limits_{s' \in \mathcal{S}}\mathcal{P_{ss'}^a} v_{k}(s'))$$
+- MRP ([need a referesher?](#bellman-equation-for-mrps)):
+
+    $$v_{k+1} = \mathcal{R^\pi} + \gamma\mathcal{P^\pi}\cdot v_{k}$$
+
+#### Small Gridworld - Random Policy Example
+![Iterative Policy Evaluation Example](assets/posts/david_silver_rl/lec3_it_policy_grid_example.png)
+Value function helps us figure out better policies. Eventhough we were just evaluating one policy, we can use that to build a new policy by acting greedily!
+
 ### Policy Iteration
+#### Definition
+To make a policy better, we'll first evaluate the policy (as described above), and then improve the policy by acting greedily based on the evaluated value function. We iterate policies using this process recursively.
+
+In other words, given a policy $\pi$
+- Evaluate the policy $\pi$:
+
+    $$v_{\pi}(s) = \mathbb{E}[R_{t+1} + \gamma R_{t+2} + \cdots \mid S_t = s]$$
+
+- Improve the policy by acting greedily with respect to $v_\pi$
+
+    $$\pi' = greedy(v_\pi)$$
+
+**This process, when run iteratively, always converges to $\pi*$**
+
+> In our previous example, we just evaluated the policy once and kept iteratively converging on it using the same policy (simultaneously maintaing possible optimial policies on the side which converged to a greedy policy in 3 iterations, much before the value function converged). However, in general cases, we need more iterations of improvement / evaluation.
+
+![Policy Iteration Diagram](assets/posts/david_silver_rl/lec3_it_policy_loop_diagram.png)
+
+#### Example: Jack's Car Rental
+Consider the following scenario:
+- States: Two Locations with a capacity of 20 cars each
+- Actions: Move upto 5 cars from one location to the other
+    - Reward: -2$ for each moved car
+- Transitions (Environment Stochasticity): Cars Can be returned and requested randomly
+    - Both the request / return for both locations follow the poisson distribution of probability: 
+
+        $$\mathbb{P}(n) = \frac{\lambda^n}{n!}e^{-\lambda}$$
+
+        - Location 1: $\text{Return: } \lambda_{ret1} = 3, \text{ Rent: }\lambda_{req1} = 3$
+        - Location 2: $\text{Return: } \lambda_{ret2} = 2, \text{ Rent: }\lambda_{req2} = 4$
+    - Reward: 10$ for each rented car
+
+For a given policy $\pi(i, j)$, where $i, j \in [0, 20]$ represent car availability in both locations, we can simply define the Bellman Expectation Equation as follows:
+
+$$
+\begin{aligned}
+    & \text{Let } a = \pi(i, j) \\
+    & \text{Let } \hat{i} = i - a, \quad \hat{j} = j + a \quad \text{(Inventory after moves)} \\
+    & \text{Let } r_1 = \min(\hat{i}, \text{req}_1), \quad r_2 = \min(\hat{j}, \text{req}_2) \quad \text{(Actual rentals)} \\
+    \\
+    V_\pi(i, j) &= \underbrace{-2|a|}_{\text{Deterministic Cost}} \\
+    & \quad + \sum_{\text{req}, \text{ret}} P(\text{req}, \text{ret}) \Bigg[ \underbrace{10(r_1 + r_2)}_{\text{Rental Reward}} + \gamma V\Big( \text{clamp}(\hat{i} - r_1 + \text{ret}_1), \text{clamp}(\hat{j} - r_2 + \text{ret}_2) \Big) \Bigg] \\
+    & \text{Where } P(\text{req}, \text{ret}) = \underbrace{\frac{\lambda_{req1}^{k_1}}{k_1!}e^{-\lambda_{req1}}}_{P(req_1=k_1)} \times \underbrace{\frac{\lambda_{req2}^{k_2}}{k_2!}e^{-\lambda_{req2}}}_{P(req_2=k_2)} \times \underbrace{\frac{\lambda_{ret1}^{m_1}}{m_1!}e^{-\lambda_{ret1}}}_{P(ret_1=m_1)} \times \underbrace{\frac{\lambda_{ret2}^{m_2}}{m_2!}e^{-\lambda_{ret2}}}_{P(ret_2=m_2)}
+\end{aligned}
+$$
+
+The above can then be used to iteratively update the value function, which can then be used to build a greedy policy and so on and so forth! The below illustration depicts convergance of the policy as we follow this process:
+![Policy Iteration in Jack's Car Rental Example](assets/posts/david_silver_rl/lec3_it_policy_jacks_car_rental.png){: width="450"}
+
+#### Proof: The Policy Improves!
+As after a step of acting greedily, we are stuck with a deterministic policy (it might be stochastic if we choose to keep multiple possible actions with maximal actions-values, but for this case let's consider we only keep 1), thus we may as well just start with a random deterministic policy: $a = \pi(s)$
+- Now, from our definition we can <u>improve</u> this policy by acting greedily wrt to its value function
+
+    $$\pi'(s) = \underset{a \in \mathcal{A}}{\text{argmax}}\ q_\pi(s, a)$$
+
+- At the very least we can say that as this chooses the action resulting in the maximum action-value, it improves our policy for **one step**. So say from each state, the next step we take is based on this updated policy $\pi'$, and there on we continue following our original policy $\pi$, we get:
+
+    $$q_\pi(s, \pi'(s)) = \underset{a \in \mathcal{A}}{\text{argmax}}\ q_\pi(s, a) \geq q_\pi(s, \pi(s)) = v_\pi(s)$$
+
+- Recursively applying this understanding, we eventually get:
+    $$
+    \begin{aligned}
+        v_\pi(s) &\leq q_\pi(s, \pi'(s)) = \mathbb{E_{\pi'}}\left[R_{t+1} + \gamma v_\pi(S_{t+1}) \mid S_t = s\right] \\
+                 &\leq  \mathbb{E_{\pi'}}\left[R_{t+1} + \gamma q_\pi(S_{t+1}, \pi'(S_{t+1})) \mid S_t = s\right]\\
+                 &\leq  \mathbb{E_{\pi'}}\left[R_{t+1} + \gamma R_{t+2} \gamma^2 q_\pi(S_{t+2}, \pi'(S_{t+2})) \mid S_t = s\right] \\
+                 &\leq  \mathbb{E_{\pi'}}\left[R_{t+1} + \gamma R_{t+2} \gamma^2 q_\pi(S_{t+2}, \pi'(S_{t+2})) \cdots \mid S_t = s\right] = v_{\pi_*}(s)
+    \end{aligned}
+    $$
+
+    or to put simply, $$v_\pi(s) \leq v_{\pi_*}(s)$$, the policy improves!
+- This improvement can be done iteratively, and stops when:
+
+    $$q_\pi(s, \pi'(s)) = \underset{a \in \mathcal{A}}{\text{argmax}}\ q_\pi(s, a) \textcolor{pink}{\textbf{=}} q_\pi(s, \pi(s)) = v_\pi(s)$$
+
+- or, simply:
+
+    $$\underset{a \in \mathcal{A}}{\text{argmax}}\ q_\pi(s, a) = v_\pi(s)$$
+
+    Look familiar? That's the [Bellman Optimality Equation for MDPs](#bellman-optimality-equation), and as it's been satisified! we can safely say that:
+
+    $$v_\pi(s) = v_{*}(s) \ \forall \ s$$
+
+- Policy $\pi$ is optimal.
+
+#### Does Policy Evaluation Need to Converge?
+Revisiting our [grid world example](#small-gridworld---random-policy-example) again, we notice that to reach the final greedy policy our value function really didn't have to converge, we got the policy right at $k=3$. So now the question is, Does policy evaluation really need to converge to $v_\pi$? It turns out not, we can go with the following **Modified Policy Iteration Methods**:
+- Should we introduce a stopping condition (e.g. $\epsilon$ convergence of value function)
+- Simply stop after $k$ iterations of the *iterative policy evaluation* step ?
+    - What if we update policy every iteration? i.e. $k=1$?
+        - This is equivalent to **Value Iteration** (coming up next!)
+
 ### Value Iteration
+#### Principle of Optimality
+As we already know, any optimal policy can be subdivided into:
+- An optimal first action $A_*$
+- Followed by an optimal policy from successor state $S'$
+
+> Theorem (Principle of Optimality)
+>
+> *A policy $\pi(a \mid s)$ achieves the optimal value from state $s$, $$v_\pi(s) = v_{*}(s)$$, if and only if*
+> - *For any state $s'$ reachable from $s$*
+> - *$\pi$ achieves the optimal value from state $s'$, $$v_\pi(s') = v_{*}(s')$$*
+{: .prompt-info}
+
+#### Deterministic Value Iteration
+- If we know the solution to subproblems $v_{*}(s')$
+- Then solution $v_{*}(s)$ can be found by one-step lookahead
+    
+    $$v_{*}(s) \leftarrow \underset{a \in \mathcal{A}}{\text{max}} \ \mathcal{R_s^a} + \gamma \sum_{s' \in \mathcal{S}}\mathcal{P_{ss'}^a}v_{*}(s')$$
+    
+- Or in other words we can apply the [bellman optimality equation](#bellman-optimality-equation) iteratively to update the value function making it reach its optimal value:
+    - We start with a randomly initialized value function $v_1$
+    - We iteratively apply [Bellman Optimality Backup](#bellman-optimality-equation) to improve the value function:
+        
+        $$v_1 \rightarrow v_2 \rightarrow \cdots \rightarrow v_{*}$$
+
+        using synchronus backups, i.e. at each iteration $k$: 
+        
+        we update $v_k(s) \ \text{from} \ v_{k-1}(s')$ $\forall s \in \mathcal{S}$
+    - An **important** thing to note here is that unlike *Policy Iteration*, we **don't** have any **explicit policy** here, in fact intermediate value functions may not even correspond to any policy!
+    - Also note from previous section, that this is techinically equivalent to modified policy iteration with $k=1$.
+    - The following backup diagram illustrates the above mentioned process
+
+        ![Value Iteration, Backup Diagram](assets/posts/david_silver_rl/lec3_it_value_backup_diagram.png)
+
+        Mathematically, the above is equivalent to:
+
+        $$
+        \begin{aligned}
+            & v_{k+1}(s) \leftarrow \underset{a \in \mathcal{A}}{\text{max}} \ \mathcal{R_s^a} + \gamma \sum_{s' \in \mathcal{S}}\mathcal{P_{ss'}^a}v_{k}(s') \\
+            & \mathbf{v}_{k+1} \leftarrow \underset{a \in \mathcal{A}}{\text{max}} \ \left(\mathcal{R^a} + \gamma \mathbf{\mathcal{P^a}v_{k}}\right)
+        \end{aligned}
+        $$
+
+
+- A simple intuition for this is imagining the process as starting with final rewards (say there's an end / goal state) and working backwards. Here's an illustrated example for a problem where we are trying to find the shortest path of all cells from the top-left corner (goal state).
+
+    ![Value Iteration, Grid Shortest Path Example (Intuition)](assets/posts/david_silver_rl/lec3_it_val_intuition_shortest_path_example.png)
+
+    > **Q. In the shortest path example, the value function values keep getting more negative (smaller). But didn't we prove that values improve during policy iteration?**
+    >
+    > **Ans.** This question highlights a key difference between **policy iteration** and **value iteration**:
+    >
+    > - The theorem showing values getting "better" was for **policy iteration**, not value iteration.
+    > - In value iteration, the intermediate values $v_k$ may not correspond to any actual policy; they're just stepping stones toward $v_{*}$.
+    > - If you were to fully evaluate a policy at each step of policy iteration and then compare it to the greedy-improved policy, yes, the value function would strictly improve.
+    > - But in value iteration, we never claimed the intermediate values are monotonically increasing; only that they converge to the optimal value function.
+    >
+    > The confusion arises because:
+    > - **Policy iteration:** We evaluate real policies $\rightarrow$ values of successive policies improve
+    > - **Value iteration:** We're not evaluating real policies $\rightarrow$ intermediate values just converge to $v_{*}$
+    {: .prompt-tip }
+    
+It's important to note that in practice the algorithm doesn't even know that a final State exists, even if there is no final State the algorithm will still work. Even if the mdp is ergodic and just goes on forever continuing, or an mdp that has some discount factor and just goes on forever: Dynamic Programming still works. It will still find the optimal solution. There could in fact be one, many or no goal state at all.
+
+[A great example of value iteration in practice](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_dp.html)
+> *This link is different than the one given by David in the lecture as that no longer works in most modern browsers, but you don't have to worry about it, this one's made by **Andrej Karpathy***
+
+
+
+### Summary of DP Algorithms
+#### Synchronous Dynamic Programming Algorithms
+
+| Problem | Bellman Equation | Algorithm |
+| :--- | :--- | :--- |
+| **Prediction** | Bellman Expectation Equation | Iterative Policy Evaluation |
+| **Control** | Bellman Expectation Equation + Greedy Policy Improvement | Policy Iteration |
+| **Control** | Bellman Optimality Equation | Value Iteration |
+
+- Algorithms are based on state-value function $v_\pi(s)$ or $v_{*}(s)$
+    - Complexity $O(mn^2)$ per iteration, for $m$ actions and $n$ states
+- Could also apply to action-value function $q_\pi(s, a)$ or $q_*(s, a)$
+    - Complexity $O(m^2n^2)$ per iteration
+
 ### Extensions to Dynamic Programming
-### Contraction Mapping -->
+#### Asynchronous Dynamic Programming
+DP methods described so far used synchronous backups, i.e. all states are backed up in parallel. Asynchronous DP on the other hand, backs up states individually, in any order:
+- For each selected state, apply the appropriate backup.
+- This can significantly reduce computation and is Guaranteed to converge if all states continue to be selected.
+
+##### <u>Three Simple Ideas for Asynchronous DP</u>
+<b><u>1. In-Place Dynamic Programming</u></b>
+
+- Synchronous DP stores 2 versions of the value function:
+
+    $\forall s \in S$
+
+    $$\textcolor{pink}{v_{new}(s)} \leftarrow \underset{a \in \mathcal{A}}{\text{max}} \ \mathcal{R_s^a} + \gamma \sum_{s' \in \mathcal{S}}\textcolor{pink}{\mathcal{P_{ss'}^a}v_{old}(s')}$$
+
+- Asynchronous DP stores just 1 version:
+
+    $\forall s \in S$
+
+    $$\textcolor{pink}{v(s)} \leftarrow \underset{a \in \mathcal{A}}{\text{max}} \ \mathcal{R_s^a} + \gamma \sum_{s' \in \mathcal{S}}\textcolor{pink}{\mathcal{P_{ss'}^a}v(s')}$$
+
+    Note that here, the ordering in which these states are updated, really matters, consider a specific scenario where we are given a goal state and we iterate backwards to the states branching out of it, the updates would be much more efficient as compared to iterating from leaf states back to the goal state. This ordering optimality motivates the next approach:
+
+<b><u>2. Prioritised Sweeping</u></b>
+
+- Use magnitude of Bellman error to guide state selection, e.g
+
+    $$\left|\underset{a \in \mathcal{A}}{\text{max}} \left(\mathcal{R_s^a} + \gamma \sum_{s' \in \mathcal{S}}\mathcal{P_{ss'}^a}v(s')\right) - v(s)\right|$$
+
+- Backup the state in decreasing order of Bellman error (implemented efficiently via priority queue), this error of affected states is updated after each backup.
+- Requires knowledge of reverse dynamics (predecessor states)
+
+<b><u>3. Real-Time Dynamic Programming</u></b>
+
+The idea of real-time dynamic programming is to select the states that the agent actually visit. Instead of just sweep over everything naively, we actually run an agent in the real world, collect real samples / random samples from some real trajectory and update around those real samples. So say if an agent is wandering around a specific section of a grid, we care much more about those specific states than what's going on in the far corner of the grid, because that's what the agent is actually encountering under its current policy. Simply put, the idea is to:
+- Use agent’s experience to guide the selection of states
+- After each time-step $$S_t, A_t, R_{t+1}$$
+- Backup the state $S_t$
+
+    $$\textcolor{pink}{v(S_t)} \leftarrow \underset{a \in \mathcal{A}}{\text{max}} \ \mathcal{R_{\textcolor{pink}{S_t}}^a} + \gamma \sum_{s' \in \mathcal{S}}\textcolor{pink}{\mathcal{P_{S_t s'}^a}v(s')}$$
+
+#### Full-Width vs Sample Backups
+##### <u>Full-Width Backups (DP)</u>
+Dynamic programming uses **full-width backups**: for each state update, we consider:
+- **All actions** (max over the entire action space)
+- **All successor states** (weighted by transition probabilities)
+
+This has two major drawbacks:
+1. **Expensive:** We enumerate the full branching factor at every step
+2. **Requires a model:** We need to know the transition dynamics $\mathcal{P}_{ss'}^a$
+
+##### <u>Sample Backups (Preview of Model-Free RL)</u>
+Instead of exhaustive enumeration, we can **sample** trajectories $\langle S, A, R, S' \rangle$ and estimate expectations from these samples.
+
+| Aspect | Full-Width Backup | Sample Backup |
+|--------|-------------------|---------------|
+| **Computation** | $O(\|A\| \cdot \|S\|)$ per state | $O(1)$ per sample |
+| **Model required?** | Yes | No |
+| **Scalability** | Fails for large MDPs | Works well for large MDPs |
+
+**Key insight:** By sampling transitions from the environment (rather than computing over all possibilities), we:
+- Break the curse of dimensionality
+- Eliminate the need to know the model
+
+> This is the bridge from **dynamic programming** (model-based planning) to **model-free reinforcement learning** (covered in upcoming lectures).
+{: .prompt-info }
+
+#### Approximate Dynamic Programming
+Even with sample backups, we still need to store a value for every state. For truly massive state spaces (continuous states, high-dimensional observations), this becomes infeasible. The solution: **approximate the value function** using a parameterized function.
+
+##### <u>Function Approximation</u>
+Instead of storing $v(s)$ for each state, we use a **function approximator**:
+
+$$\hat{v}(s, \mathbf{w}) \approx v(s)$$
+
+where $\mathbf{w}$ is a parameter vector (e.g., weights of a neural network). We then apply dynamic programming to this approximate value function.
+
+##### <u>Fitted Value Iteration</u>
+A concrete example of approximate DP. At each iteration $k$:
+
+1. **Sample states:** Select a subset $\tilde{\mathcal{S}} \subseteq \mathcal{S}$
+
+2. **Compute targets:** For each sampled state $s \in \tilde{\mathcal{S}}$, estimate the target value using the Bellman optimality equation:
+
+    $$\tilde{v}_k(s) = \underset{a \in \mathcal{A}}{\text{max}} \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}} \mathcal{P}_{ss'}^a \hat{v}(s', \mathbf{w}_k) \right)$$
+
+3. **Train the approximator:** Fit the next value function $\hat{v}(\cdot, \mathbf{w}_{k+1})$ using the collected targets $\{(s, \tilde{v}_k(s))\}$ as a supervised learning problem.
+
+> This combines the ideas of **sampling** (don't enumerate all states) and **function approximation** (don't store values for all states) — essential ingredients for scaling RL to real-world problems.
+{: .prompt-info }
+
+### Contraction Mapping
