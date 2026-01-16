@@ -1399,8 +1399,410 @@ Similar to MC Learning, Temporal-Difference (TD for short) methods learn directl
     Here, 
     - $$R_{t+1} + \gamma V(S_{t+1})$$, is referred to as **TD Target**
     - and, $$R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$$, is referred to as the **TD Error**
+- <u>Why TD? An example:</u>
+
+    Consider the following scenario: You're driving and you see suddenly a car that comes hurtling towards you. You think you're going to crash, but then you don't actually crash, at the last second the car swerves out of the way:
+    - In Monte Carlo you wouldn't get this negative reward, i.e. you wouldn't have a crash, ergo you wouldn't be able to update your value to say that you almost died. But in:
+    - TD learning you're in this situation where you think everything's fine and then on the next timestep you're now in a situation where you think you're going to die (i.e. a car crash is going to happen). And so you can immediately update the value we had before to say oh that was actually worse than I thought maybe I should have slowed down the car and anticipated this potential near-death experience (which can be done immediately in TD, as we don't need to wait until the crash happens / you die to update our value function).
+
+#### Driving Home Example
+
+| State | Elapsed Time (minutes) | Predicted Time to Go | Total Time |
+|---|---|---|---|---|
+| leaving office | 0 | 30 | 30 |
+| reach car, raining | 5 | 35 | 40 |
+| exit highway | 20 | 15 | 35 |
+| behind truck | 30 | 10 | 40 |
+| home street | 40 | 3 | 43 |
+| arrive home | 43 | 0 | 43 |
+
+Consider the above story, where at each step we have:
+- "Predicted time to go": how long before the subject reaches home
+- Elapsed Time (minutes): How long has it been since we left office?
+- Total time: how much total time we do estimate we'll take to reach home based on the states seen up till now (or current state thinking of this as an MDP).
+
+As can be seen the estimates fluctuate as the subject encounters unexpected events (which may not be regular occurences) such as rain or getting stuck behind the truck / traversing the highway faster than expected.
+
+![TD vs MC for Driving Example](assets/posts/david_silver_rl/lec4_td_v_mc_driving_example.png)
+
+When we apply MC / TD learning to the above estimates of *Total Time* (as can be seen in the above figure), notice that for:
+- Monte-Carlo (MC): All estimates get pushed towards the final true reward (in this case time it took to actually reach home) 43 minutes, which pulls estimates for all states upwards. Indirectly, it increased expected value for "reach car" state due to the later traffic jam (failing to integrate the fact that the immediate reward: drive on the highway was actually faster!).
+- Temporal-Difference (TD(0) in this case): As each state's estimate depends on the immediate reward and expected value of next state (note that because we're tracking total traversed time, we'll also add already traversed time to this value to get "Total Time" = Expected "total time" value of next State), notice that the expected value from "reach car" state actually went down acknowledging the fact that the drive on the highway was infact faster!
+
+#### MC vs TD
+##### <u>Advantages & Disadvantages (1)</u>
+- TD can learn *before* knowing the final outcome:
+    - TD can learn *online* after every step
+    - MC must wait untill the end of the episode before the total return is known (which is needed to update each step: learning).
+- TD can learn without the final outcome
+    - TD can learn from incomplete sequences
+    - MC can only learn from complete sequences
+    - TD works in continuing (non-terminating) environments
+    - MC only works for episodic (terminating) environments
+        > *We can choose to go for some arbitrary point in the horizon and backup from there, but there's always some error introduced* - David Silver
+
+> **Q. Does TD find the same answer as Monte Carlo?**
+>
+> **Ans.** The basic answer is that TD finds the true value function. It finds the true value function as long as you run the TD algorithm for enough iterations (i.e., continue updating the value estimates over time). It will always ground itself because even though you correct yourself based on your guess and that guess might not be right, that guess will then be updated towards something that happened subsequently which will ground it more and more. So all of your guesses are progressively becoming better and that information backs up such that you get the correct value function.
+{: .prompt-tip }
+
+##### <u>Advantages & Disadvantages (2): Bias/Variance Trade-Off</u>
+> An estimate is unbiased if its expectation is equal to the true value function $v_{\pi}(S_t)$.
+
+- Return $G_t$ ($R_{t+1} + \dots + \gamma^{T-1}R_T$) is an unbiased estimate of $v_{\pi}(S_t)$.
+    - *Why?* By definition, $v_{\pi}(S_t) = \mathbb{E}[G_t]$.
+- True TD Target ($R_{t+1} + \gamma v_{\pi}(S_{t+1})$) is an unbiased estimate of $v_{\pi}(S_t)$.
+    - *Why?* This is the [Bellman Expectation Equation](#bellman-expectation-equation)
+- TD target $R_{t+1} + \gamma V(S_{t+1})$ is a biased estimate of $v_{\pi}(S_t)$.
+    - *Why?* We substitute the true $v_{\pi}$ with our current (imperfect) estimate $V$.
+
+- **MC (Return): High Variance, Zero Bias**
+    - **High Variance:** $G_t$ depends on many random actions, transitions, and rewards until the end of the episode.
+    - **Zero Bias:** It does not rely on current estimates (no bootstrapping).
+    - **Pros:** Good convergence properties (even with function approximation); very simple to implement.
+    - **Cons:** Slow to learn (must wait for episode end).
+- **TD (TD Target): Low Variance, High Bias**
+    - **Low Variance:** The target depends on only one random action/transition/reward, then smoothes the rest using $V(S_{t+1})$.
+    - **High Bias:** $V(S_{t+1})$ is an estimate. If our current estimate is wrong, our update target is wrong.
+    - **Pros:** Usually more efficient (learns faster); learns during the episode.
+    - **Cons:** More sensitive to initial values (bad initialization bleeds into other states via bootstrapping).
+
+##### <u>Random Walk Example</u>
+![TD vs MC: Random Walk Example](assets/posts/david_silver_rl/lec4_td_vs_mc_random_walk.png){: width="400"}
+
+Let's illustrate these differences with a classic example. Consider the random walk depicted above. From each state ($A$ through $E$), there are two possible actions: **Left** and **Right**. We follow a uniform random policy (equal probability of $0.5$ for each action).
+* **Rewards:** All transitions give a reward of $0$, unless you terminate on the far right (transition from $E$), which gives a reward of $+1$.
+* **Termination:** The episode ends if you reach the far left (reward $0$) or far right (reward $+1$).
+
+**The Question:** What is the value function $v_{\pi}(s)$ for being in each of these states?
+
+The true value of each state represents the probability of terminating on the right side. Thus, the true values form a straight diagonal line:
+$$V(A)=1/6, V(B)=2/6, \dots, V(E)=5/6$$
+
+The figure above illustrates the estimated value function using the **TD(0)** algorithm:
+-   **Initialization:** We start with an arbitrary Value Estimate ($0.5$ for all states).
+-   **Learning:** As we run the algorithm for $1 \rightarrow 10 \rightarrow 100$ episodes, the estimated value function tilts and converges toward the true value function (the diagonal line).
+
+![TD vs MC: Random Walk Example Average RMS Error](assets/posts/david_silver_rl/lec4_td_vs_mc_random_walk_avg_rms.png){: width="400"}
+
+**Comparing Monte Carlo vs. TD**
+The plot above depicts the RMS error (difference between the true value function and our estimate, averaged over all states) as the number of episodes increases.
+* **Black Lines (Monte Carlo):** Shows learning with different step sizes $\alpha$.
+* **Gray Lines (TD):** Shows learning with different step sizes $\alpha$.
+
+**Key Takeaways:**
+1.  **TD is More Efficient:** For appropriately chosen step sizes, TD (gray) consistently achieves lower error faster than Monte Carlo (black).
+2.  **Why? (Information Propagation):** TD bootstraps. If state $E$ learns it is valuable (close to the $+1$ reward), that information is passed backward to state $D$ in the very next step. MC, by contrast, must wait for a "lucky run" that starts at $A$ and successfully reaches the end to update $A$'s value. Given the randomness, "successful" runs are rare, making MC data-starved compared to TD
+3.  **Convergence:** While this plot uses fixed step sizes (which is why the error hits a "floor" rather than reaching zero), in practice, step sizes are usually decayed to achieve perfect convergence (zero error).
+
+##### <u>Batch MC & TD</u>
+- MC and TD converge: $V(s) → v_{\pi}(s)$ as experience $\rightarrow \infty$
+- But what about batch solution for finite experience?
+    
+    $$\begin{aligned}
+        s_1^1, a_1^1, r_2^1 \cdots s_{T_1}^1 \\
+        \vdots \\
+        s_1^K, a_1^K, r_2^K \cdots s_{T_K}^K
+    \end{aligned}$$
+
+    - e.g. Repeatedly sample episode $k \in [1,K]$
+    - Apply MC or TD(0) to episode k
+
+To illustrate the same, we take a very simple example, consider the following episodes for a two state MDP:
+
+$$\begin{aligned}
+    &A \ 0 \ B \ 0 \\
+    &B \ 1 \\
+    &B \ 1 \\
+    &B \ 1 \\
+    &B \ 1 \\
+    &B \ 1 \\
+    &B \ 1 \\
+    &B \ 0
+\end{aligned}$$
+
+**Calculating Values ($V(A)$ and $V(B)$)**
+
+**1. Monte Carlo (MC) Perspective**
+MC updates based on the actual *returns* observed for each state.
+* **For State B:** B was visited 8 times.
+    * Returns: $1, 1, 1, 1, 1, 1, 0, 0$ (from the first episode).
+    * Average: $6/8 = 0.75$.
+    * **$V(B) = 0.75$**
+* **For State A:** A was visited only **once** (in the first episode).
+    * The total return for that episode was $0$.
+    * **$V(A) = 0$**
+
+**2. TD(0) Perspective**
+TD updates based on the *Markov structure* (bootstrapping).
+* **For State B:** TD sees the same immediate outcomes as MC. $V(B)$ converges to $0.75$.
+* **For State A:** The transition is $A \to B$ with reward $0$.
+    * TD updates $V(A)$ towards $R + \gamma V(B)$.
+    * Since $V(B)$ has converged to $0.75$, $V(A)$ is pulled towards $0 + 1 \cdot 0.75$.
+    * **$V(A) = 0.75$**
+
+**Concretely:**
+- **MC** converges to solution with minimum mean-squared error
+    - Best fit to the observed returns
+
+        $$\sum_{k=1}^K\sum_{t=1}^{T_k} (G_t^k - V(s_t^k))^2$$
+
+    - In the training data, every time we saw $A$, the return was $0$, therefore, $V(A)=0$ minimizes the error for the training set.
+
+- **TD(0)** converges to solution of max likelihood Markov Model
+    - Solution to the MDP $\langle \mathcal{S, A, \hat{P}, \hat{R}}, \gamma \rangle$ that best fits the data:
+
+    $$\begin{aligned}
+        \mathcal{P_{s,s'}^a} = \frac{1}{N(s, a)} \sum_{k=1}^K\sum_{t=1}^{T_k} \mathbf{1}(s_t^k, a_t^k, s_{t+1}^k = s, a, s') \\
+        \mathcal{R_{s}^a} = \frac{1}{N(s, a)} \sum_{k=1}^K\sum_{t=1}^{T_k} \mathbf{r_{t+1}^k}(s_t^k, a_t^k = s, a)
+    \end{aligned}$$
+
+    - **The Model TD builds:**
+
+        ![AB Example: Batch MC & TD](assets/posts/david_silver_rl/lec4_mc_n_td_batch_example.png){: width="350"}
+        
+        * Transition from A: $100\%$ chance to go to B.
+        * Value of B: $\approx 0.75$ (based on rewards).
+    - If $A$ always goes to $B$, and $B$ is worth $0.75$, then $A$ *must* be worth $0.75$.
+
+
+
+##### <u>Advantages & Disadvantages (3)</u>
+TD exploits the Markov property by building implicitly an mdp structure and solving for that mdp structure. Which means that **in Markov environments TD normally is more efficient** because it makes use of it's markov property than just blindly looking at complete trajectories (MC).
+
+Whereas Monte-Carlo does not exploit the markov property, but one benefit then is if you're in a **non-markov environment** (partially observed) you know you can't just rely on the state signal. That's when, **Monte Carlo can be a better choice**.
+
+Often we have some spectrum between these where you're maybe a little bit on Markov and then the question is how far between these (TD & MC) should you go (coming up in next section).
+
+
+##### <u>Summary</u>
+* **Monte Carlo**: Samples one complete trajectory (samples an action from the agent, then gets blow off to state by the environment (black to white node transitions) and so and so forth untill we reach a terminal state) and then you uses that  to update the value function at the root of the trajectory (starting point) and we also at every intermediate state along the way to the terminal state.
+
+    ![Monte Carlo Backup](assets/posts/david_silver_rl/lec4_td_summary_monte_carlo_backup.png){: width="350"}
+
+* **Temporal Difference Learning**: The backup is just over one step, we sample our own action, we sample the environment and then we look at the value function where we ended up. Then, we back up that value function towards the value function at the starting node. 
+
+    ![TD Backup](assets/posts/david_silver_rl/lec4_td_summary_td_backup.png){: width="350"}
+
+* **Dynamic Programming** ([ref](#planning-by-dynamic-programming)): Although we also did a one-step look ahead in DP, but n contrast to TD we didn't sample, we knew the Dynamics and we used those Dynamics to basically compute a full expectation (as we knew the probability of where the environment would take us).
+
+    ![DP Backup](assets/posts/david_silver_rl/lec4_td_summary_dp_backup.png){: width="350"}
+
+* To complete the space of possibilities, we could also do an **Exhaustive look ahead** of this entire tree. Essentially something which is like dynamic programming but going all the way to the end (all terminal states) and then doing a complete backup (exhaustive tree search). This intuitively, leads to an exponential blow up in the size of the update.
+
+#### Unified View of RL
+
+![Unified View of RL](assets/posts/david_silver_rl/lec4_unified_view_of_rl.png){: width="350"}
+
+| Algorithm | Bootstrapping <br> <i>update involves an estimate</i> | Sampling <br> <i>update samples an expectation</i> |
+|---|---|---|---|---|
+| Monte Carlo | ❌ | ✅ |
+| Temporal Difference | ✅ | ✅ |
+| Dynamic Programming | ✅ | ❌ |
 
 ### $\text{TD}(\lambda)$
+#### N-Step TD
+Instead of setting the target to immediate reward + discounted estimated value of next state, we can let the TD Target look $n$ steps into the future:
+
+![N Step TD](assets/posts/david_silver_rl/lec4_td_n_step.png){: width="350"}
+
+- N-step returns for $n = 1, 2, \infty$ can be written as:
+
+    $$\begin{aligned}
+        & n = 1 \quad \text{(TD)} \quad G_t^{(1)} = R_{t+1} + \gamma V(S_{t+1}) \\
+        & n = 2 \quad \text{(TD)} \quad G_t^{(2)} = R_{t+1} + \gamma R_{t+2} + \gamma^2 V(S_{t+1}) \\
+        & \vdots \\
+        & n = \infty \quad \text{(MC)} \quad G_t^{(\infty)} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{T-1} R_{T}
+    \end{aligned}$$
+
+- Or Generically, we can define N-Step return as follows:
+
+    $$G_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V(S_{t+n})$$
+
+- Ergo N-Step TD is then simply:
+
+    $$V(S_t) \leftarrow V(S_t) + \alpha \left(G_t^{(n)} - V(S_t)\right)$$
+
+#### Choosing the Optimal "N"
+Now, the question comes down to, which "N" is the best? Is there on universal value which would apply to any problem ? To illustrate this consider the following study on the same random walk we saw before (but with more statest $\sim 21$). We track the performance in terms of RMS error and different step sizes as before, but also across different choices of n. The below summary plot shows two variations of this with online (immediate) and offline (end of episode) updates:
+
+![large random walk example](assets/posts/david_silver_rl/lec4_td_optimal_n_random_walk_example.png){: width="350"}
+
+- Both show a similar character: As n approaches Infinity (approaching Monte Carlo), we start to get very high errors (the gap between the errors is exaggerated as the example was run for a shorter training time).
+- In between the extremities, we get this sweet spot where if we look ahead just sort of the right number of steps in your trajectories you can propagate information backwards more efficiently (propagate information over multiple steps and hence move information more quickly across a long chain).
+- However notice, that even across online & offline the optimal value of n changes! Further if we increase the size of the random walk (add more states), the optimal n would change again (favoring larger lookaheads).
+
+Hence, we need to come up with an algorithm which gets the best of all n by efficiently considering all variations at once.
+
+#### Averaging n-Step Returns
+One way to consider all $n$, would be to average $n-step$ returns over different $n$:
+- e.g. average the 2-step and 4-step returns
+    $$\frac{1}{2} G^{(2)} + \frac{1}{2} G^{(4)}$$
+
+However, can we efficiently combine information from all time-steps? Yes we can!
+
+#### $\lambda$ Return
+The $\lambda$ return $G_t^{\lambda}$ combines all n-step returns $G_t^{n}$ with a geometrically weighted average:
+- Using weight $$(1 − \lambda)\lambda^{n−1}$$ for each n, giving:
+- $$G_t^{\lambda} = (1 − \lambda)\sum_{n=1}^{\infty} \lambda^{n−1} G_t^{n}$$
+
+The forward view of TD($\lambda$) is then described by:
+
+$$V(S_t) \leftarrow V(S_t) + \alpha \left(G_t^{(\lambda)} - V(S_t)\right)$$
+
+- These geometric weight summate to 1:
+
+    $$\sum_{n=1}^{\infty}(1 − \lambda)\lambda^{n−1} = 1$$
+
+- Further as can be seen in the figure:
+
+    ![TD Lambda, Lambda Return](assets/posts/david_silver_rl/lec4_td_lambda_lambda_return.png){: width="350"}
+
+    For episodic MDPs, the largest possible $n$ gets the accumulates from $n \text{ to } \infty$. (not making sense? Think of it this way, once we reach the terminal state, from there on till infinity, we are effectively doing 0 reward transitions back to the terminal state, or in other words staying in ther terminal state!)
+
+    ![TD Lambda, Weighting Function](assets/posts/david_silver_rl/lec4_td_lambda_weighting_function.png){: width="450"}
+
+> Q. Why Geometric Weighting though? 
+>
+> Geometric weightings are memoryless and hence effective to compute, not requiring storing or computing for each n-step return.  Hence, we can effectively calcualte TD($\lambda$) in the same computational cost as TD($0$). This is may or may not be true for other weighting schemes.
+>
+> It is also possible to come up with geometric weightings where the $\lambda$ varies per time step, giving us a much broader class while still having the above mentioned properties. We'll be using this property in the upcoming lectures.
+{: .prompt-tip}
+
+#### Forward View $\text{TD}(\lambda)$
+Forward-view looks into the future to compute $G^{\lambda}_t$ and hence suffers from the same drawback as Monte Carlo, i.e. it can only be computed from complete episodes. But what's nice about TD Lambda is that there exists an equivalent mechanistic view that achieves the same results as forward view $\text{TD}(\lambda)$ but without having to look into the future (without having to wait until the end of the episode). We'll discuss that approach shortly.
+
+##### <u> Large Random Walk Example </u>
+We again look at the random walk example, but now instead plot it by varying $\lambda$. 
+
+![Offline TD Lambda on Large Walk](assets/posts/david_silver_rl/lec4_td_lambda_on_large_walk_example.png){: width="400"}
+
+We can see that there's a sweet spot again in $\lambda$ but it's actually much more robust, that is it would stay the same regardless of the size of the random walk and change in the environment. In general, we often see these kind of curves where there's a sweet spot in the $\lambda$ curve between $0$ and $1$ where we get just the right trade-off between bootstrapping and bias-variance tradeoff.
+
+#### Backward View $\text{TD}(\lambda)$
+##### <u>The Credit Assignment Problem</u>
+Imagine you're a rat in an experiment: you hear a bell three times, then a light comes on, and finally you get electrocuted.
+
+**Question:** What caused the shock—the bell or the light?
+
+There are two reasonable heuristics for assigning credit:
+
+1. **Frequency heuristic:** Assign credit to the most frequently occurring states
+   - The bell occurred more often (3 times vs 1), so blame the bell
+
+2. **Recency heuristic:** Assign credit to the most recent states
+   - The light was most recent before the shock, so blame the light
+
+**Eligibility traces** combine both heuristics to solve the credit assignment problem.
+
+##### <u>What are Eligibility Traces?</u>
+An **eligibility trace** $E_t(s)$ is a short-term memory vector that tracks how "eligible" each state is for learning updates. It combines frequency and recency:
+
+- When we **visit** a state, we **increase** its eligibility trace
+- When we **don't visit** a state, its eligibility trace **decays exponentially**
+
+Mathematically:
+
+$$
+\begin{aligned}
+E_0(s) &= 0 \\
+E_t(s) &= \gamma\lambda E_{t-1}(s) + \mathbf{1}(S_t = s)
+\end{aligned}
+$$
+
+where $\mathbf{1}(S_t = s)$ is 1 if we're in state $s$ at time $t$, and 0 otherwise.
+
+![Eligibility Traces Illustration](assets/posts/david_silver_rl/lec4_eligibility_traces.png){: width="500"}
+
+**How it works:**
+- Each time we visit a state, we bump up its eligibility trace
+- As time passes without visiting it, the trace decays
+- Frequently and recently visited states have higher traces
+
+##### <u>Backward View $\text{TD}(\lambda)$ Algorithm</u>
+Instead of looking forward into the future (forward view), we can update all states by **broadcasting the TD error backwards** to all previously visited states, weighted by their eligibility traces.
+
+**Algorithm:**
+1. Keep an **eligibility trace** $E_t(s)$ for every state $s$
+2. At each step, compute the **TD error:**
+
+   $$\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$$
+
+3. **Update the value function for ALL states** (not just the current one):
+
+   $$V(s) \leftarrow V(s) + \alpha \delta_t E_t(s)$$
+
+4. **Update eligibility traces** for next step:
+
+   $$E_{t+1}(s) = \gamma\lambda E_t(s) + \mathbf{1}(S_{t+1} = s)$$
+
+**Key insight:** The TD error $\delta_t$ is broadcast backwards to all states, but the update to each state is weighted by how much credit that state deserves (its eligibility trace). States with higher eligibility get updated more.
+
+![Backward View TD(λ) Diagram](assets/posts/david_silver_rl/lec4_backward_view_td_lambda.png){: width="500"}
+
+##### <u>Relationship to $\text{TD}(0)$</u>
+**When $\lambda = 0$:**
+- Eligibility traces decay immediately to zero: $E_t(s) = \gamma \cdot 0 \cdot E_{t-1}(s) + \mathbf{1}(S_t = s) = \mathbf{1}(S_t = s)$
+- Only the **current state** has non-zero eligibility: $E_t(s) = 1$ if $s = S_t$, else $0$
+- Update equation becomes:
+
+  $$V(s) \leftarrow V(s) + \alpha \delta_t E_t(s) = V(s) + \alpha \delta_t \cdot \mathbf{1}(S_t = s)$$
+
+- **This is exactly $\text{TD}(0)$**: only update the current state $S_t$
+
+  $$V(S_t) \leftarrow V(S_t) + \alpha \delta_t$$
+
+##### <u>Relationship to Monte Carlo</u>
+**When $\lambda = 1$:**
+- Credit is deferred until the end of the episode
+- For **episodic environments with offline updates** (wait until episode ends, then apply all updates):
+
+> **Theorem (Forward-Backward Equivalence):**
+>
+> The sum of offline updates is **identical** for forward-view and backward-view $\text{TD}(\lambda)$:
+>
+> $$\sum_{t=1}^T \alpha \delta_t E_t(s) = \sum_{t=1}^T \alpha \left(G_t^\lambda - V(S_t)\right) \mathbf{1}(S_t = s)$$
+>
+> In other words, summing all backward-view updates over an episode gives the **same total update** as summing all forward-view updates.
+{: .prompt-warning }
+
+**What this means:**
+- Backward view is a **mechanistic implementation** that achieves the same result as forward view
+- You only need to look backwards (computationally efficient, no need to wait for future)
+- For **offline** $\text{TD}(1)$, the total update equals the **Monte Carlo** update
+
+> **Note:** There exists a method, which has extended this equivalence even to **online updates**, where you change the value function as you go along, using a method that maintains exact equivalence.
+{: .prompt-tip }
+
+##### <u>Summary: Forward vs Backward View</u>
+
+| Aspect | Forward View $\text{TD}(\lambda)$ | Backward View $\text{TD}(\lambda)$ |
+|--------|-----------------------------------|-------------------------------------|
+| **Update target** | $G_t^\lambda$ (λ-weighted return) | $\delta_t$ (1-step TD error) |
+| **When to update** | At end of episode (or after seeing future) | Immediately, every step |
+| **What to update** | Current state only | All states (weighted by eligibility) |
+| **Looks at** | Future returns | Past states |
+| **Equivalence** | Offline updates give same total | Offline updates give same total |
+| **Efficiency** | Requires seeing future | Can update online |
+| **Conceptual** | Principled (what we want) | Mechanistic (how we compute) |
+
+Backward view $\text{TD}(\lambda)$ is an efficient, online-implementable algorithm that achieves the same goal as forward view $\text{TD}(\lambda)$ by cleverly broadcasting TD errors backwards using eligibility traces.
+
+> **Note:** Slides 44-51 were not covered explicitly in the lecture and are hence not explicitly present in these notes (I might add details later sometime in the future). If you're interested in a mathematical derivation proving the equivalence of backward view to forward view and convergence to MC on $\lambda = 1$, checkout [slides 44-51](https://davidstarsilver.wordpress.com/wp-content/uploads/2025/04/lecture-4-model-free-prediction-.pdf).
+{: .prompt-tip }
+
+### Misc QAs
+
+> **Q. Why do we assume that the value after one step is more accurate than the value before one step? Why not reverse the dynamics and do it the other way? Would the alternative algorithm give the right answer?**
+>
+> **Ans.** It will give the wrong answer. In fact, even if you try to minimize the mean squared error of your TD error or something similar, you'll find the wrong answer in stochastic MDPs. That's a well-known fact—you actually get the wrong answer by doing it the other way.
+>
+> The intuition is this: when you take one step, you're always in a sense a little bit more accurate because you've seen one step of reality in between. That step of reality involves one step of the real reward and also one step of the real dynamics, and then you estimate your value function where you ended up. Because you've included one step of the real dynamics and the real reward, you are in some sense more accurate—more accurate than where you were before. If you take enough of these steps, you end up grounding yourself completely in the real dynamics and the real reward of what happened.
+>
+> Whereas if you go backwards, you're starting from a situation where you've already taken that step—you're closer to your goal, you've already seen this real step of what happened. Now you want to move this guy towards your estimate of what happened before you saw that real step of the environment. There's no reason to think that that estimate is actually going to be better, and often it's going to be worse.
+>
+> The key is—and this actually becomes apparent in the math if you look at the reasons these algorithms converge, like contraction mappings and so forth—it's because you take one step of real dynamics, and that real dynamics always brings you closer to the ground truth.
+{: .prompt-tip }
 
 ## Lecture 5: Model-Free Control
 > Notes coming out soon...
