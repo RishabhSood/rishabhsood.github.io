@@ -14,7 +14,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
-    <a href="https://www.apple.com/"><img height="94px" width="94px" alt="Apple" src="https://i.pinimg.com/474x/b0/d2/6e/b0d26e8122dffa8a51081f7f814581d7.jpg" style="border-radius: 12px;"/></a>
+    <a href="https://www.apple.com/"><img height="94px" width="94px" alt="Apple" src="/assets/img/apple_icon.jpg" style="border-radius: 12px;"/></a>
   </div>
   <div>
     <strong>Machine Learning Engineer</strong><br/>
@@ -37,7 +37,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
-    <a href="https://www.goldmansachs.com/"><img height="94px" width="94px" alt="Goldman Sachs" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Goldman_Sachs.svg/1024px-Goldman_Sachs.svg.png" style="border-radius: 12px;"/></a>
+    <a href="https://www.goldmansachs.com/"><img height="94px" width="94px" alt="Goldman Sachs" src="/assets/img/goldman_sachs_icon.avif" style="border-radius: 12px;"/></a>
   </div>
   <div>
     <strong>Analyst</strong><br/>
@@ -53,7 +53,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
-    <a href="https://www.apple.com/"><img height="94px" width="94px" alt="Apple" src="https://i.pinimg.com/474x/b0/d2/6e/b0d26e8122dffa8a51081f7f814581d7.jpg" style="border-radius: 12px;"/></a>
+    <a href="https://www.apple.com/"><img height="94px" width="94px" alt="Apple" src="/assets/img/apple_icon.jpg" style="border-radius: 12px;"/></a>
   </div>
   <div>
     <strong>Software Development Engineer (Intern)</strong><br/>
@@ -70,7 +70,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
-    <a href="https://www.goldmansachs.com/"><img height="94px" width="94px" alt="Goldman Sachs" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Goldman_Sachs.svg/1024px-Goldman_Sachs.svg.png" style="border-radius: 12px;"/></a>
+    <a href="https://www.goldmansachs.com/"><img height="94px" width="94px" alt="Goldman Sachs" src="/assets/img/goldman_sachs_icon.avif" style="border-radius: 12px;"/></a>
   </div>
   <div>
     <strong>Summer Analyst (Intern)</strong><br/>
@@ -88,7 +88,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
-    <a href="https://www.gatech.edu/"><img height="94px" width="94px" alt="Georgia Tech" src="https://images.squarespace-cdn.com/content/v1/530175eae4b02368396cb720/1641424247213-14OM17ZJHUKL1DD6ESN0/gt_logo-02.png" style="border-radius: 12px;"/></a>
+    <a href="https://www.gatech.edu/"><img height="94px" width="94px" alt="Georgia Tech" src="/assets/img/gatech_icon.webp" style="border-radius: 12px;"/></a>
   </div>
   <div>
     <strong>M.S. Computer Science, Machine Learning Specialization</strong><br/>
@@ -99,7 +99,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
-    <a href="https://www.thapar.edu/"><img height="94px" width="94px" alt="Thapar Institute" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8FGD2_H-AD1RqGQnIqngM6Mcv0CA4UjH1fg&s" style="border-radius: 12px;"/></a>
+    <a href="https://www.thapar.edu/"><img height="94px" width="94px" alt="Thapar Institute" src="/assets/img/thapar_logo.png" style="border-radius: 12px;"/></a>
   </div>
   <div>
     <strong>B.E. Computer Science & Engineering</strong><br/>
