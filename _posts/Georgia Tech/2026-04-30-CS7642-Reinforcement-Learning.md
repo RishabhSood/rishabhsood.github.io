@@ -681,7 +681,7 @@ TD(0) updates using only the **immediate reward + estimated value of next state*
 
 **Why TD(0) gives the maximum likelihood estimate:** When TD(0) is run repeatedly over finite data, the expected update averages transitions according to their observed frequencies. This is equivalent to building an ML model and solving it, but *without explicitly constructing the model*. TD(1) cannot do this because it only uses literal episode returns.
 
-> See also: [David Silver RL Lecture 4: TD vs MC comparison](assets/posts/david_silver_rl/lec4_td_vs_mc_random_walk_avg_rms.png) — TD consistently achieves lower error faster than MC for appropriately chosen step sizes, because TD bootstraps: information about valuable states propagates backward immediately rather than waiting for complete episodes.
+> See also: [David Silver RL Lecture 4: TD vs MC comparison](../../assets/posts/david_silver_rl/lec4_td_vs_mc_random_walk_avg_rms.png) — TD consistently achieves lower error faster than MC for appropriately chosen step sizes, because TD bootstraps: information about valuable states propagates backward immediately rather than waiting for complete episodes.
 {: .prompt-tip }
 
 #### TD($\lambda$): Unifying TD(0) and TD(1)
@@ -711,7 +711,7 @@ $$\text{Weight on } E_k = (1 - \lambda) \lambda^{k-1}$$
 
 These weights sum to 1 (geometric series). When $\lambda = 0$: all weight on $E_1$. When $\lambda = 1$: all weight on $E_\infty$.
 
-> See: [David Silver RL Lecture 4: $\lambda$-return weighting function](assets/posts/david_silver_rl/lec4_td_lambda_weighting_function.png) and [eligibility traces illustration](assets/posts/david_silver_rl/lec4_eligibility_traces.png) for visual depictions of this weighting and how eligibility traces work.
+> See: [David Silver RL Lecture 4: $\lambda$-return weighting function](../deepmind-x-ucl-introduction-to-reinforcement-learning/#lambda-return) and [eligibility traces illustration](../deepmind-x-ucl-introduction-to-reinforcement-learning/#what-are-eligibility-traces) for visual depictions of this weighting and how eligibility traces work.
 {: .prompt-tip }
 
 ![Eligibility traces over time: spikes on state visits, exponential decay between visits. At each timestep, the TD error is applied to all states weighted by their current eligibility.](assets/posts/cs7642/lec3_eligibility_traces_over_time.png){: w="500"}
