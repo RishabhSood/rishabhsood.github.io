@@ -8,9 +8,19 @@ toc: true
 ## Background
 
 Hi!
-I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a solid foundation in the field of Computer Science. Having garnered valuable experience through internships at both Apple and Goldman Sachs, I currently contribute my skills as a Software Engineer at Apple. My expertise spans across the dynamic domains of Machine Learning, Artificial Intelligence, backend development and DevOps. Passionate about delivering swift, cost-effective technology solutions, I thrive on navigating new challenges in the ever-evolving landscape of computer science. With a steadfast mission to continually enhance my skills and contribute to groundbreaking technology, I am open to networking and enthusiastic about collaborating on future innovations in the tech industry.
+I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a solid foundation in the field of Computer Science. Having garnered valuable experience at both Apple and Goldman Sachs, I currently contribute my skills as an MLE-II at Microsoft R&D. My expertise spans across the dynamic domains of Machine Learning, Artificial Intelligence, backend development and DevOps. Passionate about delivering swift, cost-effective technology solutions, I thrive on navigating new challenges in the ever-evolving landscape of computer science. With a steadfast mission to continually enhance my skills and contribute to groundbreaking technology, I am open to networking and enthusiastic about collaborating on future innovations in the tech industry.
 
 ## Career
+
+<div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+  <div style="flex-shrink: 0; margin-right: 20px;">
+    <a href="https://www.microsoft.com/"><img height="94px" width="94px" alt="Apple" src="/assets/img/microsoft_icon.png"/></a>
+  </div>
+  <div>
+    <strong>Machine Learning Engineer - II</strong><br/>
+    <a href="https://www.microsoft.com/"><strong>Microsoft R&D</strong></a> • May 2026 - Present<br/>
+  </div>
+</div>
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
@@ -18,7 +28,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
   </div>
   <div>
     <strong>Machine Learning Engineer</strong><br/>
-    <a href="https://www.apple.com/"><strong>Apple</strong></a> • Jan 2024 - Present<br/>
+    <a href="https://www.apple.com/"><strong>Apple</strong></a> • Jan 2024 - May 2026<br/>
     <ul>
       <li><b>Support App Chat (Generative Experience):</b> Engineered a generative multi-turn conversational AI for millions of users, featuring tool invocation and response validation.
         <ul>
