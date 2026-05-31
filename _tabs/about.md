@@ -14,7 +14,7 @@ I am Rishabh Sood, a highly motivated Software Developer / ML Engineer with a so
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex-shrink: 0; margin-right: 20px;">
-    <a href="https://www.microsoft.com/"><img height="94px" width="94px" alt="Apple" src="/assets/img/microsoft_icon.png"/></a>
+    <a href="https://www.microsoft.com/"><img height="94px" width="94px" alt="Microsoft" src="/assets/img/microsoft_icon.png"/></a>
   </div>
   <div>
     <strong>Machine Learning Engineer - II</strong><br/>
