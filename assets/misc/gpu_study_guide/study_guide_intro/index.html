@@ -1,0 +1,1709 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Beginner-first notes for GPU hardware, CUDA software, OMSCS GPU Modules 1-3, and NVIDIA CUDA Programming Guide Part 1.">
+  <title>GPU Hardware & CUDA Software — Foundations and Labs</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f2; --paper: #ffffff; --ink: #152017; --muted: #536158;
+      --line: #d9dfd5; --green: #4c8c20; --green2: #76b900; --pale: #eef7e8;
+      --blue: #0d6371; --bluepale: #e9f6f7; --amber: #9b5d00; --amberpale: #fff5df;
+      --red: #9c2f2f; --code: #101713; --codeink: #e8f2ea;
+      --sidebar: 17rem; --max: 72rem;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.62 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    a { color: var(--blue); text-decoration-thickness: .08em; text-underline-offset: .15em; }
+    a:hover { color: var(--green); }
+    nav {
+      position: fixed; inset: 0 auto 0 0; width: var(--sidebar); overflow: auto;
+      padding: 1.25rem 1rem 3rem; background: #142015; color: #eaf3e7;
+      border-right: 4px solid var(--green2);
+    }
+    nav .brand { font-weight: 800; font-size: 1.1rem; line-height: 1.25; margin-bottom: .35rem; }
+    nav .sub { color: #aebcab; font-size: .78rem; margin-bottom: 1rem; }
+    nav a { display: block; color: #dce9d8; text-decoration: none; padding: .28rem .5rem; border-radius: .35rem; font-size: .87rem; }
+    nav a:hover, nav a.active { color: #fff; background: #2b422d; }
+    nav .group { margin-top: .75rem; color: #83c956; padding-left: .5rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
+    main { margin-left: var(--sidebar); padding: 0 2rem 5rem; }
+    article { max-width: var(--max); margin: 0 auto; }
+    .hero {
+      margin: 0 -2rem 2rem; padding: 4.5rem max(2rem,calc((100vw - var(--sidebar) - var(--max))/2 + 2rem)) 3.5rem;
+      color: white; background: linear-gradient(125deg,#142015 0%,#203d24 58%,#4c8c20 100%);
+      border-bottom: .45rem solid var(--green2);
+    }
+    .eyebrow { color: #b9e99c; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; font-size: .78rem; }
+    h1 { margin: .4rem 0 .75rem; max-width: 18ch; font-size: clamp(2.25rem,5vw,4.4rem); line-height: 1.02; letter-spacing: -.045em; }
+    .lede { max-width: 48rem; font-size: 1.13rem; color: #e4eee1; }
+    .hero-meta { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1.2rem; }
+    .pill { border: 1px solid #759575; border-radius: 99rem; padding: .28rem .65rem; font-size: .78rem; color: #edf7e9; }
+    section { padding: 2.4rem 0 .8rem; border-top: 1px solid var(--line); }
+    section:first-of-type { border-top: 0; }
+    h2 { margin: 0 0 1rem; font-size: clamp(1.65rem,3vw,2.45rem); line-height: 1.15; letter-spacing: -.025em; }
+    h3 { margin: 1.8rem 0 .55rem; font-size: 1.28rem; line-height: 1.25; }
+    h4 { margin: 1.4rem 0 .35rem; font-size: 1.02rem; }
+    p { margin: .55rem 0 1rem; }
+    ul, ol { padding-left: 1.35rem; }
+    li { margin: .3rem 0; }
+    code { font-family: ui-monospace,SFMono-Regular,Consolas,monospace; font-size: .9em; }
+    :not(pre) > code { background: #e7ece5; border: 1px solid #d3dbd0; padding: .08em .3em; border-radius: .25rem; }
+    pre {
+      position: relative; overflow: auto; margin: .8rem 0 1.2rem; padding: 1rem 1.1rem;
+      background: var(--code); color: var(--codeink); border-radius: .55rem; border-left: .3rem solid var(--green2);
+      line-height: 1.45; tab-size: 4;
+    }
+    pre code { font-size: .84rem; }
+    .copy {
+      position: absolute; right: .45rem; top: .4rem; border: 1px solid #536458; border-radius: .3rem;
+      background: #243129; color: white; padding: .2rem .45rem; font-size: .7rem; cursor: pointer;
+    }
+    .grid2, .grid3 { display: grid; gap: 1rem; margin: 1rem 0; }
+    .grid2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .grid3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    .card { padding: 1rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--paper); }
+    .card h3, .card h4 { margin-top: 0; }
+    .callout { margin: 1rem 0; padding: .85rem 1rem; border-left: .28rem solid var(--blue); background: var(--bluepale); }
+    .callout.warn { border-color: var(--amber); background: var(--amberpale); }
+    .callout.critical { border-color: var(--red); background: #fff0f0; }
+    .callout strong:first-child { display: inline-block; margin-right: .25rem; }
+    .definition {
+      margin: 1rem 0; padding: 1rem 1.1rem; background: var(--paper);
+      border: 1px solid var(--line); border-top: .28rem solid var(--green2); border-radius: .45rem;
+    }
+    .definition .label {
+      display: block; color: var(--green); font-size: .72rem; font-weight: 800;
+      letter-spacing: .09em; text-transform: uppercase; margin-bottom: .25rem;
+    }
+    .not-confuse {
+      margin: 1rem 0; padding: .9rem 1rem; background: #fff8e9;
+      border: 1px solid #ead29d; border-left: .28rem solid var(--amber); border-radius: .35rem;
+    }
+    .not-confuse::before {
+      content: "Do not confuse: "; font-weight: 800; color: var(--amber);
+    }
+    .walkthrough {
+      margin: 1rem 0 1.4rem; padding: 1rem 1.1rem; background: #f0f7fb;
+      border: 1px solid #c8dfe7; border-radius: .5rem;
+    }
+    .walkthrough > strong:first-child { color: var(--blue); }
+    table { width: 100%; border-collapse: collapse; margin: .8rem 0 1.25rem; background: var(--paper); font-size: .91rem; }
+    th, td { text-align: left; vertical-align: top; border: 1px solid var(--line); padding: .55rem .65rem; }
+    th { background: #e9efe6; }
+    .table-wrap { overflow-x: auto; }
+    figure { margin: 1.25rem 0 1.6rem; padding: .8rem; border: 1px solid var(--line); border-radius: .55rem; background: white; }
+    figure img { display: block; max-width: 100%; max-height: 42rem; margin: 0 auto; object-fit: contain; }
+    figcaption { color: var(--muted); font-size: .78rem; margin-top: .65rem; }
+    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin: 1rem 0; }
+    .flow span { padding: .5rem .7rem; background: var(--pale); border: 1px solid #bcd7aa; border-radius: .4rem; font-weight: 650; }
+    .flow i { color: var(--green); font-style: normal; font-size: 1.25rem; }
+    .term { font-weight: 750; color: #1e4e25; }
+    .small { color: var(--muted); font-size: .84rem; }
+    .lab { border-left: .3rem solid var(--green2); padding-left: 1rem; margin: 1.5rem 0 2.2rem; }
+    .lab h3 { margin-bottom: .25rem; }
+    .checklist li::marker { color: var(--green); }
+    details { margin: .65rem 0; padding: .55rem .75rem; border: 1px solid var(--line); border-radius: .4rem; background: white; }
+    summary { cursor: pointer; font-weight: 700; }
+    footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--line); color: var(--muted); font-size: .85rem; }
+    @media (max-width: 900px) {
+      nav { position: static; width: auto; max-height: none; border-right: 0; border-bottom: 4px solid var(--green2); columns: 2; }
+      nav .brand, nav .sub { column-span: all; }
+      main { margin-left: 0; padding: 0 1rem 4rem; }
+      .hero { margin: 0 -1rem 1.5rem; padding: 3rem 1.25rem 2.5rem; }
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+    }
+    @media print {
+      nav, .copy { display: none !important; }
+      main { margin: 0; padding: 0; }
+      .hero { margin: 0 0 1rem; padding: 1rem; color: #111; background: white; border: 0; }
+      .hero .lede, .hero .eyebrow, .hero .pill { color: #222; }
+      section { break-before: page; }
+      figure, pre, table { break-inside: avoid; }
+      details { display: block; }
+      details > * { display: block; }
+    }
+  </style>
+</head>
+<body>
+<nav aria-label="Study guide contents">
+  <div class="brand">GPU H/W + S/W</div>
+  <div class="sub">Beginner foundations · Modules 1–3 · CUDA 13.3</div>
+  <div class="group">Start here</div>
+  <a href="#how-to-use">0. How to use this guide</a>
+  <a href="#mental-model">1. From program to GPU</a>
+  <a href="#hardware">2. What a GPU contains</a>
+  <a href="#execution">3. Thread → warp → grid</a>
+  <a href="#memory">4. Memory & caching</a>
+  <div class="group">Course modules</div>
+  <a href="#module1">5. Module 1 foundations</a>
+  <a href="#module2">6. Module 2 parallel patterns</a>
+  <a href="#module3">7. Module 3 CUDA</a>
+  <div class="group">Modern CUDA</div>
+  <a href="#simt-tile">8. SIMT, SIMD, tile</a>
+  <a href="#toolchain">9. NVCC, PTX, binaries</a>
+  <a href="#performance">10. Performance reasoning</a>
+  <a href="#labs">11. Hands-on labs</a>
+  <a href="#glossary">12. Glossary</a>
+  <a href="#sources">13. Sources</a>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="eyebrow">A zero-assumption field guide</div>
+    <h1>GPU Hardware & CUDA Software</h1>
+    <p class="lede">A compact but complete path from programs, processors, and memory to CUDA execution and modern GPU features. No GPU term is assumed; each is defined before it becomes part of the model.</p>
+    <div class="hero-meta">
+      <span class="pill">Course Modules 1–3</span>
+      <span class="pill">NVIDIA Guide Part 1</span>
+      <span class="pill">CUDA Toolkit 13.3</span>
+      <span class="pill">Verified on RTX 3060</span>
+      <span class="pill">Updated 2026-08-28</span>
+    </div>
+  </div>
+
+  <article>
+    <section id="how-to-use">
+      <h2>0. How to use this guide</h2>
+      <p>Read Sections 1–4 once, then study Modules 1–3 in Sections 5–7. Run the matching lab after each concept. Sections 8–10 explain newer CUDA 13.3 ideas and performance. Every term is defined where it first matters; the glossary is a review aid, not a substitute for the explanations.</p>
+      <div class="grid3">
+        <div class="card"><h3>Learn</h3><p>Read one concept and say the definition aloud in your own words.</p></div>
+        <div class="card"><h3>Hand execute</h3><p>After each execution term is introduced, calculate its indices on paper before running code.</p></div>
+        <div class="card"><h3>Measure</h3><p>Compile, run, check errors, then change one launch or memory choice at a time.</p></div>
+      </div>
+      <div class="callout"><strong>How code is presented.</strong> A box explicitly called a <em>complete program</em> can be compiled as shown. A box called a <em>fragment</em> demonstrates syntax that belongs inside a larger kernel or host program and is followed by an explanation of its assumed names. Begin with the self-contained four-value program in Section 4 before reading the shorter memory variations.</div>
+      <h3>Your verified local setup</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Component</th><th>Detected value</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td>GPU hardware</td><td>NVIDIA GeForce RTX 3060 Laptop GPU</td><td>The physical accelerator used to run and verify the examples.</td></tr>
+          <tr><td>CUDA development toolkit</td><td>CUDA 13.3</td><td>Provides the compiler, headers, libraries, and developer tools used by the labs.</td></tr>
+          <tr><td>GPU driver</td><td>610.88</td><td>Host software that lets the operating system and applications control the GPU.</td></tr>
+          <tr><td>Lab verification</td><td>All twelve CUDA examples passed</td><td>Includes a self-contained first program, ordinary CUDA C++, mapped host memory, capability detection, and the newer CUDA Tile C++ model.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><strong>Verified.</strong> Every runnable CUDA program in <a href="examples/">the examples folder</a> was compiled and checked on this GPU. One advanced capability-detection example correctly reports that this older GPU does not support the newer feature it tests.</div>
+    </section>
+
+    <section id="mental-model">
+      <h2>1. From a program to a CPU-and-GPU system</h2>
+      <h3>What “GPU” and “CUDA” mean</h3>
+      <p>A <strong>Graphics Processing Unit (GPU)</strong> is a processor whose design emphasizes performing large amounts of parallel work. GPUs began as specialized hardware for real-time graphics, then gained programmable graphics stages. NVIDIA introduced CUDA in 2006 so programmers could use GPU throughput for general computation without expressing the work as graphics operations.</p>
+      <p><strong>CUDA</strong>, originally expanded as Compute Unified Device Architecture, now names NVIDIA's broader heterogeneous-computing platform: its GPU programming models, software interfaces, compiler toolchain, libraries, and supporting hardware features. A GPU is the physical processor; CUDA is the platform through which software uses compatible NVIDIA GPUs.</p>
+      <div class="not-confuse">“GPU programming” is broader than CUDA: other vendors and cross-platform interfaces exist. Conversely, CUDA is broader than the CUDA C++ language extensions used in these labs; applications can reach CUDA through libraries, frameworks, other languages, and compiler-generated GPU code.</div>
+
+      <h3>Start below CUDA: what is a processor doing?</h3>
+      <p>A <strong>program</strong> is an ordered description of work. A <strong>compiler</strong> translates human-written source code into lower-level representations that a target machine or later compiler stage can execute or translate further. After compilation, much of the work is represented as <strong>instructions</strong>: operations such as “load a value from memory,” “add two values,” “compare,” “branch,” or “store a result.” The values an instruction operates on are its <strong>data</strong>.</p>
+      <p>A <strong>processor</strong> is hardware that repeatedly obtains instructions, determines what they mean, obtains their input data, performs the operation, and records the result. Real processors overlap these steps in pipelines and may execute many operations at once, but this simple loop is the foundation.</p>
+      <div class="definition">
+        <span class="label">Definition — instruction stream</span>
+        An instruction stream is the ordered sequence of instructions followed by one executing program context. A CPU thread normally gives the processor one such stream. A CUDA thread is also a logical instruction stream, but GPU hardware manages enormous numbers of these much lighter-weight streams.
+      </div>
+      <p>The processor cannot do useful work without storage. <strong>Registers</strong> hold a small number of values immediately used by execution hardware. <strong>Memory</strong> holds much more code and data, but access usually takes longer. <strong>Caches</strong> are intermediate storage that try to keep recently or nearby used memory closer to the processor. We will build that hierarchy carefully in Section 4.</p>
+
+      <h3>Latency and throughput are different goals</h3>
+      <p><strong>Latency</strong> is how long one task or operation takes from start to finish. <strong>Throughput</strong> is how much total work finishes per unit time. Imagine a sports car and a bus. The sports car gets one passenger to a destination quickly; the bus can move far more passengers per trip. Neither is universally “faster”—they optimize different measures.</p>
+      <p>A modern CPU is primarily designed to minimize the latency of a few complicated instruction streams. It uses large caches and sophisticated control hardware: it predicts which branch a program will take, speculatively begins likely future work, and may execute independent instructions out of their original order while preserving the program's result. A GPU is primarily designed to maximize throughput when the same broad operation can be applied to a great deal of data. It devotes much more of the chip to arithmetic hardware and maintains many threads so that useful work can continue while other work waits.</p>
+      <div class="not-confuse">A GPU is not simply “a CPU with more cores.” Its processing units, scheduling strategy, cache balance, synchronization model, and intended kind of parallel work differ. Even the word <em>core</em> is ambiguous in GPU discussions, so Section 2 introduces more precise hardware names before using them.</div>
+
+      <h3>Why parallel work changes the design</h3>
+      <p>Suppose one addition takes time to obtain its operands from memory. A latency-oriented processor tries hard to make that particular instruction arrive sooner: predict what comes next, search for another independent instruction from the same thread, and keep data in large caches. A throughput-oriented GPU also uses caches, but it has another powerful option: keep many groups of threads ready and execute a different group while the first waits.</p>
+      <p>This only helps when the application contains <strong>parallelism</strong>—work that can proceed independently. Adding every pair of elements in two large vectors has abundant parallelism because output element 500 does not need output element 499. Parsing one highly dependent chain of decisions may have little parallelism and can favor a CPU.</p>
+      <div class="definition">
+        <span class="label">Definition — parallelism</span>
+        Parallelism is the ability to make progress on more than one operation during overlapping time. <strong>Concurrency</strong> means multiple tasks are in progress; <strong>parallel execution</strong> means they are physically executing at the same time. People often use the words loosely, but the distinction helps when one processor time-slices many tasks.
+      </div>
+
+      <h3>One application, two kinds of processor</h3>
+      <p>CUDA assumes a <strong>heterogeneous system</strong>: a system containing unlike processors, most importantly a CPU and an NVIDIA GPU. An application begins on the CPU. It uses the GPU for selected parts whose parallelism makes acceleration worthwhile.</p>
+      <p>The CPU and the memory directly associated with it are called the <strong>host</strong> and <strong>host memory</strong>. The GPU and the memory directly associated with it are called the <strong>device</strong> and <strong>device memory</strong>. On a discrete laptop or desktop GPU, host and device are separate chips connected by an <strong>interconnect</strong>: a physical link that transports commands and data, commonly PCI Express (PCIe). On a system-on-chip they may share a package and physical memory, but CUDA still uses the host/device roles.</p>
+      <div class="definition">
+        <span class="label">Definition — host code and device code</span>
+        <strong>Host code</strong> executes on the CPU. It prepares data, allocates memory, requests transfers, launches GPU work, and consumes results. <strong>Device code</strong> executes on the GPU. A GPU entry function launched by the host is historically called a <strong>kernel</strong>.
+      </div>
+      <div class="definition">
+        <span class="label">Definition — application programming interface (API)</span>
+        An API is a documented collection of functions, types, and rules through which one software component requests services from another. CUDA API calls let host code request memory allocation, data transfer, kernel launch, synchronization, and other GPU services.
+      </div>
+      <p>To <strong>launch a kernel</strong> means to request that the GPU execute that kernel many times in parallel. Each logical execution is a CUDA thread. The host does not call a CUDA kernel like an ordinary CPU function and wait inside the call; a launch normally queues device work and returns control to the CPU before that work completes.</p>
+      <p>Because launches and many data operations are asynchronous, CPU host code and GPU device code can execute at the same time. High-performance applications try to keep both processors useful while respecting data dependencies; “offloading to the GPU” does not require the CPU to remain idle.</p>
+      <div class="walkthrough">
+        <strong>Concrete example: vector addition.</strong>
+        The CPU creates arrays A and B, makes them accessible to the GPU, and launches an addition kernel. CUDA creates many logical threads. Thread 0 adds A[0] + B[0]; thread 1 adds A[1] + B[1]; and so on. The CPU later waits for completion or copies C back. The application is one program, but host code and device code run on different processors with different responsibilities.
+      </div>
+      <div class="not-confuse">A <strong>kernel</strong> is the GPU function/program. A <strong>thread</strong> is one logical execution of that kernel. The <strong>GPU device</strong> is the physical accelerator. Calling all three “the GPU code” hides distinctions that matter for correctness.</div>
+
+      <p>A CPU tries to make a small number of instruction streams finish quickly. A GPU trades some single-thread speed for the throughput to keep many operations in flight. A CUDA application is therefore <em>heterogeneous</em>: CPU host code prepares work; GPU device code performs massively parallel work.</p>
+      <div class="flow" aria-label="CUDA application flow">
+        <span>CPU host code</span><i>→</i><span>allocate / initialize data</span><i>→</i><span>launch GPU kernel</span><i>→</i><span>many GPU threads</span><i>→</i><span>synchronize / copy result</span>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>CPU design emphasis</h3>
+          <ul><li>Low latency for one thread</li><li>Large caches and sophisticated flow control</li><li>Branch prediction and out-of-order execution</li><li>A few powerful cores</li></ul>
+        </div>
+        <div class="card">
+          <h3>GPU design emphasis</h3>
+          <ul><li>High aggregate throughput</li><li>Many arithmetic units and lightweight threads</li><li>Continued progress by switching among ready groups of work</li><li>Many parallel processing units and high-rate memory movement</li></ul>
+        </div>
+      </div>
+      <figure>
+        <img src="assets/nvidia/gpu-devotes-more-transistors-to-data-processing.png" alt="Conceptual CPU and GPU transistor allocation: CPU emphasizes cache and control while GPU emphasizes arithmetic units.">
+        <figcaption>Conceptual resource emphasis, not a literal floorplan. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/introduction.html">§1.1.2</a>.</figcaption>
+      </figure>
+
+      <h3>You do not always need to write a kernel yourself</h3>
+      <p>A <strong>software library</strong> is reusable implemented code that an application calls. When a mature GPU library already supplies an operation, it is often faster to develop with and better optimized across GPU generations than a first custom implementation. Examples include cuBLAS for linear algebra, cuFFT for Fourier transforms, cuDNN for deep-neural-network primitives, and CUTLASS for configurable high-performance linear algebra.</p>
+      <p>A <strong>framework</strong> provides a larger structure and collection of building blocks for an application; AI frameworks commonly obtain GPU acceleration by calling CUDA libraries underneath. A <strong>domain-specific language (DSL)</strong> is a language designed for one problem area. Tools such as NVIDIA Warp or OpenAI Triton can compile higher-level descriptions into code that runs on the CUDA platform.</p>
+      <div class="not-confuse">A CUDA <strong>warp</strong> is the 32-thread hardware execution group defined in Section 3. <strong>NVIDIA Warp</strong> is also the proper name of a Python framework/DSL. Context and capitalization matter; they are unrelated meanings of the same word.</div>
+      <p>This guide teaches direct CUDA C++ because it exposes the machine model needed for the course. In real projects, first ask whether a tested library or framework already implements the operation. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/introduction.html">§1.1.3</a>.</p>
+    </section>
+
+    <section id="hardware">
+      <h2>2. What a GPU physically contains</h2>
+      <h3>Read the machine from the outside inward</h3>
+      <p>A <strong>chip</strong> is a physical piece of silicon containing electronic circuits. Its smallest switching elements are transistors; designers combine them into storage, control logic, arithmetic units, and communication networks. “More transistors” does not by itself tell you performance—the important question is what the design uses them for.</p>
+      <p>A discrete GPU board or laptop GPU contains the GPU chip and usually its own DRAM chips. <strong>DRAM</strong> is the large-capacity working memory used for arrays and other program data. <strong>Memory controllers</strong> move data between that DRAM and the GPU. A device-wide <strong>L2 cache</strong> sits between memory controllers and the processing units so frequently reused memory may be served without returning to DRAM.</p>
+      <p>The GPU chip contains many processing units called <strong>Streaming Multiprocessors</strong>, abbreviated <strong>SMs</strong>. CUDA work ultimately runs on SMs. To organize a large chip, NVIDIA groups several SMs and nearby hardware into a <strong>Graphics Processing Cluster</strong>, abbreviated <strong>GPC</strong>.</p>
+      <div class="definition">
+        <span class="label">Definition — Streaming Multiprocessor (SM)</span>
+        An SM is the GPU’s main general-purpose execution engine. CUDA assigns it <strong>thread blocks</strong>, which are programmer-defined groups of threads. The SM further executes each block as fixed groups of 32 threads called <strong>warps</strong>. It keeps many warps' state resident, chooses ready warps, and issues their instructions to arithmetic, load/store, special-function, and other execution units. It also owns a register file and configurable on-chip data storage. Sections 3 and 4 develop these execution and memory terms fully.
+      </div>
+      <div class="definition">
+        <span class="label">Definition — Graphics Processing Cluster (GPC)</span>
+        A GPC is a physical grouping of SMs and supporting hardware inside an NVIDIA GPU. Most ordinary CUDA kernels do not explicitly address GPCs. GPC placement becomes visible when using a <strong>thread-block cluster</strong>: an optional software grouping whose blocks are guaranteed to be co-scheduled within one GPC.
+      </div>
+      <div class="not-confuse">A <strong>GPC</strong> is physical hardware. A CUDA <strong>grid</strong> is the logical set of all thread blocks created by one kernel launch. A grid is not assigned one-to-one to a GPC; its blocks are scheduled across the available machine.</div>
+
+      <h3>What is actually inside an SM?</h3>
+      <p>An SM is not one giant arithmetic unit. It is a coordinated collection of resources:</p>
+      <ul>
+        <li>The <strong>register file</strong> is a large on-chip bank of registers. The compiler gives each active CUDA thread some registers for its private variables. Because all resident threads draw from a finite file, high registers-per-thread can reduce how many threads fit simultaneously.</li>
+        <li><strong>Warp schedulers</strong> examine resident warps and choose those whose next instruction is ready.</li>
+        <li>A <strong>scoreboard</strong> tracks dependencies. If an instruction needs a value that has not arrived, that warp is not ready for that instruction.</li>
+        <li><strong>Functional units</strong> execute particular kinds of operations: integer arithmetic, floating-point arithmetic, load/store address work, special mathematical functions, tensor/matrix work, and more. The exact mixture varies by architecture.</li>
+        <li>The <strong>unified data cache</strong> supplies physical on-chip storage that can serve as hardware-managed L1 cache and programmer-managed shared memory. The balance can be configurable.</li>
+        <li>Instruction fetch/decode hardware obtains and interprets instructions for warps. Instruction caches reduce repeated fetching from farther memory.</li>
+      </ul>
+      <div class="not-confuse">The SM’s <strong>register file</strong> is one physical storage resource, but registers are logically private per thread. <strong>Shared memory</strong> is also physically inside the SM, but it is logically shared by the threads of a block. Physical location and programming visibility are different ideas.</div>
+
+      <h3>What people mean by “CUDA core”</h3>
+      <p>GPU product descriptions often publish a count of “CUDA cores.” That count refers roughly to small scalar arithmetic units capable of executing certain instructions. It is not comparable to a count of CPU cores. A CPU core contains substantial control logic and independently runs full instruction streams; a scalar GPU arithmetic unit is one execution resource used when an SM issues warp instructions.</p>
+      <p>For reasoning about CUDA scheduling, use these names:</p>
+      <ul>
+        <li><strong>SM</strong> for the processor-like hardware unit that receives blocks and schedules warps.</li>
+        <li><strong>Warp</strong> for a hardware execution group of 32 CUDA threads.</li>
+        <li><strong>Lane</strong> for one thread position within that warp-wide instruction.</li>
+        <li><strong>Functional unit</strong> for the hardware that performs a particular operation.</li>
+      </ul>
+      <div class="not-confuse">A CUDA <strong>thread</strong> is a logical software execution. A warp <strong>lane</strong> is its position while a warp instruction executes. A marketed “CUDA core” is hardware capacity. They are related during execution but are not interchangeable objects.</div>
+
+      <h3>Why an SM can hold more threads than execute at once</h3>
+      <p>An SM keeps the registers and scheduling state of many warps <strong>resident</strong>. Resident means their state currently occupies SM resources and they are eligible to run. At a particular instant, only the warps selected by the schedulers issue instructions. The rest may be ready but waiting their turn, or stalled waiting for data or dependencies.</p>
+      <p>This is the basis of GPU latency hiding. If warp A issues a global-memory load and must wait, the scheduler can issue an instruction from ready warp B. No operating-system context switch is required because both warps’ state is already resident on the SM.</p>
+      <div class="walkthrough">
+        <strong>One instruction’s path.</strong>
+        Suppose warp A executes <code>c[i] = a[i] + b[i]</code>. Its load instructions request values from memory. While those requests travel through caches or DRAM, warp A is not ready to add. The scoreboard records that dependency. The scheduler chooses another ready warp. When A’s operands arrive, A becomes ready and can later issue the addition. This is why a GPU benefits from many independent warps.
+      </div>
+
+      <h3>A model, not a promise about the floorplan</h3>
+      <p>The CUDA programming model deliberately presents a stable conceptual machine: GPU → GPCs → SMs → functional resources. Real products can vary in physical routing, partitions, issue width, cache organization, and internal execution. Correct CUDA code must depend on the documented programming model and queried device properties, not an assumed chip floorplan.</p>
+      <div class="callout"><strong>NVIDIA’s caveat:</strong> the actual hardware layout and the internal way it carries out the programming model may vary. These differences can affect performance, but should not change the correctness of software that follows the CUDA model.</div>
+
+      <div class="flow" aria-label="GPU hardware hierarchy">
+        <span>System</span><i>→</i><span>GPU device</span><i>→</i><span>GPC</span><i>→</i><span>SM</span><i>→</i><span>warp schedulers + execution lanes</span>
+      </div>
+      <h3>Hierarchy recap</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Unit</th><th>Beginner definition</th><th>Do not confuse it with</th></tr></thead>
+        <tbody>
+          <tr><td><span class="term">GPU / device</span></td><td>The accelerator containing multiple GPCs/SMs, shared L2 cache, memory controllers, and device DRAM.</td><td>A single “GPU core.”</td></tr>
+          <tr><td><span class="term">GPC</span></td><td>Graphics Processing Cluster: a hardware grouping of SMs. Thread-block clusters are kept inside one GPC.</td><td>A CUDA grid; GPCs are physical.</td></tr>
+          <tr><td><span class="term">SM</span></td><td>Streaming Multiprocessor: the main GPU execution engine. It contains warp schedulers, register file, L1/shared-memory resources, and functional units.</td><td>A scalar ALU lane or a CPU core. An SM is the closer CPU-core analogy.</td></tr>
+          <tr><td><span class="term">warp scheduler</span></td><td>Selects a ready resident warp and issues its next instruction. Scoreboarding tracks operand readiness and hazards.</td><td>The CUDA block scheduler.</td></tr>
+          <tr><td><span class="term">lane / execution unit</span></td><td>One position in a warp-wide operation. Marketing often calls arithmetic lanes “CUDA cores”; this guide says lane/ALU to avoid CPU-core confusion.</td><td>A complete independent CPU core.</td></tr>
+        </tbody>
+      </table></div>
+      <details>
+        <summary>Your RTX 3060 hardware snapshot — now that the terms are defined</summary>
+        <p><strong>Compute capability</strong> is NVIDIA’s version number for a GPU’s supported CUDA features and documented hardware limits. Your GPU is compute capability 8.6, written <code>sm_86</code> when selecting its native binary target.</p>
+        <ul>
+          <li>30 SMs</li>
+          <li>32 threads per warp</li>
+          <li>Up to 1536 resident threads per SM</li>
+          <li>65,536 physical registers per SM</li>
+          <li>48 KiB maximum shared memory for an ordinary block under the reported device property</li>
+          <li>3 MiB device-wide L2 cache</li>
+          <li>No thread-block cluster launch support; clusters require compute capability 9.0 or newer</li>
+        </ul>
+        <p>These are capacity limits, not a promise that every kernel reaches them simultaneously. A kernel’s block size, registers per thread, and shared memory per block determine what can be resident together.</p>
+      </details>
+      <figure>
+        <img src="assets/nvidia/gpu-cpu-system-diagram.png" alt="CPU system memory and cores connected to a GPU with device DRAM, L2 cache, and multiple SMs.">
+        <figcaption>CUDA’s conceptual hardware view. CPU system memory and GPU device memory are connected through an interconnect such as PCIe or NVLink. Green grids represent SM functional units; groups of SMs form GPCs even though the visual grouping is omitted here. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">§1.2.2</a>.</figcaption>
+      </figure>
+      <h3>Inside an SM: what happens to an instruction?</h3>
+      <ol>
+        <li>A resident warp has its own logical program counter and execution state.</li>
+        <li>The instruction fetch/decode path obtains the warp’s next instruction.</li>
+        <li>A scoreboard marks the warp ready only when source operands and required resources are ready.</li>
+        <li>A warp scheduler issues the instruction to matching functional units: integer, FP, load/store, special-function, tensor, and so on.</li>
+        <li>Active lanes perform the operation; masked lanes do no useful work for that instruction.</li>
+        <li>Results are written to registers or memory. Another ready warp can issue while a previous warp waits on a long-latency operation.</li>
+      </ol>
+      <p>This is <strong>hardware multithreading for latency hiding</strong>. It is not the same as CPU context switching: the state of many warps is already resident in the SM register file, so selecting another ready warp is cheap.</p>
+      <div class="callout"><strong>Course connection.</strong> Module 1’s fetch → decode → register read → scoreboard/schedule → grouped-thread execute → writeback diagram is an SM pipeline model. Section 3 gives that grouped execution model its formal name. Exact pipelines and unit counts vary by architecture; the programming model remains portable.</div>
+    </section>
+
+    <section id="execution">
+      <h2>3. Execution hierarchy: thread → warp → block → cluster → grid</h2>
+      <p>The execution hierarchy answers two different questions at once:</p>
+      <ol>
+        <li><strong>How does the programmer describe many pieces of work?</strong> With threads, blocks, clusters, and a grid.</li>
+        <li><strong>How does hardware issue that work?</strong> SMs receive blocks and execute their threads in warps.</li>
+      </ol>
+      <p>The words are easiest to learn in the order CUDA creates them.</p>
+
+      <h3>Step 1: the kernel is the common program</h3>
+      <p>A CUDA C++ kernel is a function marked <code>__global__</code>. The kernel text describes what one logical CUDA thread does. When the host launches the kernel, CUDA creates many logical executions of the same code.</p>
+      <pre><code>__global__ void emptyKernel() {
+    // Every CUDA thread created by the launch executes this body.
+}</code></pre>
+      <div class="walkthrough">
+        <strong>Read the declaration from left to right.</strong>
+        <ol>
+          <li><code>__global__</code> is a CUDA function qualifier. It says “compile this function for the GPU and allow host code to launch it.” It is not standard C++.</li>
+          <li><code>void</code> is the C++ return type. Kernels do not return a value directly; they normally place results in memory supplied through parameters.</li>
+          <li><code>emptyKernel</code> is a programmer-chosen function name.</li>
+          <li>The empty parentheses <code>()</code> mean this kernel receives no parameters.</li>
+          <li>The braces contain the function body. Text after <code>//</code> is a comment for humans and is not executed.</li>
+        </ol>
+        This fragment only declares a kernel; it does not launch it and is not a complete program yet.
+      </div>
+      <div class="definition">
+        <span class="label">Definition — CUDA thread and SIMT preview</span>
+        A CUDA thread is one logical execution of an ordinary per-thread CUDA kernel. It has its own thread index, instruction progress, registers, and private automatic variables. CUDA hardware uses <strong>Single Instruction, Multiple Threads (SIMT)</strong>: it executes a group of threads with a common instruction while preserving each thread's identity, data, and logical control path. The warp section below explains exactly how that grouping works.
+      </div>
+      <p>All threads run the same kernel code, but built-in coordinates let them select different data. A square kernel, for example, can make each valid thread square one different array element. This is the <strong>Single Program Multiple Data (SPMD)</strong> programming style: many workers execute one program while their identities direct them to different data.</p>
+      <div class="not-confuse">A CUDA thread is not permanently tied to one arithmetic unit, and “one million threads” does not mean the GPU contains one million physical processors. The GPU schedules manageable groups over time on the available SMs.</div>
+
+      <h3>Step 2: threads are deliberately grouped into blocks</h3>
+      <p>The programmer groups threads into a <strong>thread block</strong>, often shortened to <strong>block</strong>. A block is not just a convenient numbering container. It defines an important cooperation boundary:</p>
+      <ul>
+        <li>Every thread in a block executes on the same SM for that block’s active lifetime.</li>
+        <li>The threads share that block’s shared-memory allocation.</li>
+        <li>They can meet at a block-wide barrier such as <code>__syncthreads()</code>.</li>
+        <li>The block must fit within the thread, register, and shared-memory resources available on one SM.</li>
+      </ul>
+      <div class="definition">
+        <span class="label">Definition — thread block / CTA</span>
+        A thread block is a programmer-sized group of CUDA threads that can cooperate efficiently because CUDA places the entire block on one SM. CTA, or Cooperative Thread Array, is another name used in documentation and tools.
+      </div>
+      <p>The host chooses block dimensions at launch time. A block can be one-, two-, or three-dimensional. Dimensions do not create different hardware; they provide coordinates that naturally match a vector, image, matrix, or volume.</p>
+      <pre><code>dim3 block(16, 16);  // 16 × 16 = 256 threads in each block
+// threadIdx.x is 0..15; threadIdx.y is 0..15</code></pre>
+      <p>This is host-code configuration, not a launch by itself. <code>dim3</code> is CUDA's small three-component dimension type with <code>x</code>, <code>y</code>, and <code>z</code> fields. <code>block</code> is an ordinary programmer-chosen variable name. Omitted components default to 1, so <code>dim3 block(16, 16)</code> means <code>(16,16,1)</code>. When that variable is later used as the launch's block dimension, device code sees matching <code>threadIdx.x</code> and <code>threadIdx.y</code> coordinates.</p>
+      <div class="not-confuse">A <strong>block</strong> is a software grouping and cooperation scope. An <strong>SM</strong> is physical hardware. A block stays on one SM, but one SM can host several blocks simultaneously when resources allow. “One block per SM” is only a simplifying first example.</div>
+
+      <h3>Step 3: one launch creates a grid of blocks</h3>
+      <p>All blocks created by one kernel launch form a <strong>grid</strong>. The host selects a grid dimension and a block dimension inside the triple-chevron syntax:</p>
+      <pre><code>emptyKernel&lt;&lt;&lt;3, 4&gt;&gt;&gt;();  // 3 blocks × 4 threads = 12 threads</code></pre>
+      <p>The values inside <code>&lt;&lt;&lt;...&gt;&gt;&gt;</code> are the kernel's <strong>execution configuration</strong>. The required first two values specify grid and block dimensions; optional later values specify dynamic shared-memory bytes and a CUDA stream.</p>
+      <div class="walkthrough">
+        <strong>Read the launch from left to right.</strong> <code>emptyKernel</code> names the GPU function. The first launch value, <code>3</code>, creates three blocks. The second, <code>4</code>, creates four threads in each block. The final <code>()</code> supplies kernel parameters; it is empty because <code>emptyKernel</code> declared none. The semicolon ends the host C++ statement.
+      </div>
+      <p>Every block in the grid has the same block dimensions. Blocks receive different <code>blockIdx</code> coordinates, while threads inside each block receive <code>threadIdx</code> coordinates. <code>gridDim</code> reports the number of blocks, and <code>blockDim</code> reports the number of threads per block in each dimension.</p>
+      <div class="definition">
+        <span class="label">Definition — grid</span>
+        A grid is the complete logical collection of blocks for one kernel launch. It describes how much block-level work exists; it is not a physical region of the GPU.
+      </div>
+      <p>A grid may contain far more blocks than the GPU can hold at once. The scheduler assigns blocks to SMs as resources become available. Some blocks execute together; others wait. The programming model does not promise whether block 0, block 1, or block 500 runs first.</p>
+      <div class="not-confuse">The arithmetic order of <code>blockIdx</code> values is an indexing scheme, not an execution schedule. Printing block IDs may appear ordered in one run and different in another. Correctness cannot depend on that observed order.</div>
+
+      <h3>Why independent blocks make CUDA scalable</h3>
+      <p>If ordinary blocks do not depend on a particular execution order, the same grid can run on a small GPU with few SMs or a large GPU with many SMs. The small GPU processes more waves of blocks; the large GPU processes more blocks concurrently. This property is central to CUDA scalability.</p>
+      <p>It also explains why a normal block cannot safely wait for arbitrary other blocks in the same grid. Those other blocks may not have been scheduled yet. The usual grid-wide phase boundary is the end of a kernel, followed by another launch in the same stream.</p>
+
+      <h3>Step 4: hardware divides each block into warps</h3>
+      <p>The programmer specifies threads and blocks, but the SM executes block threads in groups called <strong>warps</strong>. On NVIDIA GPUs, one warp contains 32 threads. The threads are assigned consecutive <strong>lane IDs</strong> from 0 through 31 within the warp.</p>
+      <div class="definition">
+        <span class="label">Definition — warp and lane</span>
+        A warp is the hardware SIMT execution group formed from 32 threads of one block. A lane is one thread position inside that warp. A warp instruction is issued for the group, and an active mask says which lanes participate.
+      </div>
+      <p>Threads are first linearized within the block with x changing fastest, then y, then z. Consecutive groups of 32 form warps. A 16×16 block contains 256 threads and therefore eight warps.</p>
+      <div class="walkthrough">
+        <strong>Partial-warp example.</strong>
+        A block of 40 threads requires two warps. Warp 0 contains block threads 0–31. Warp 1 contains threads 32–39 in lanes 0–7; its remaining 24 lanes have no corresponding thread and remain inactive for the block. The launch is legal, but some hardware capacity in the last warp is unused.
+      </div>
+      <div class="not-confuse">A warp is formed <em>inside one block</em>; it never contains threads from two blocks. A block may contain many warps. The block is the CUDA cooperation unit, while the warp is the hardware issue unit.</div>
+
+      <h3>Same instruction does not mean identical behavior</h3>
+      <p>In the SIMT model, a warp issues a common instruction, but every lane has its own registers, data, addresses, and logical control state. If all lanes follow the same branch, the warp uses its lanes efficiently. If some lanes take one branch and others take another, the warp must cover the required paths with different active masks. This is <strong>warp divergence</strong>.</p>
+      <pre><code>if ((threadIdx.x % 2) == 0) {
+    // even lanes active here; odd lanes masked
+} else {
+    // odd lanes active here; even lanes masked
+}</code></pre>
+      <p>This is a code fragment intended to sit inside a kernel. The remainder operator <code>%</code> gives the division remainder, so <code>threadIdx.x % 2</code> is zero for even x-indices. <code>==</code> compares two values; it is different from the assignment operator <code>=</code>. The <code>if</code> and <code>else</code> bodies are the two possible control paths.</p>
+      <p>Divergence changes utilization, not the intended result. When the paths reconverge, all relevant lanes continue together. Hardware details such as independent thread scheduling can vary, so code must use documented synchronization rather than assuming informal lockstep communication.</p>
+      <div class="not-confuse"><strong>SPMD</strong> describes how the programmer launches the same program over many data items. <strong>SIMT</strong> describes how GPU hardware groups threads into warps. <strong>Single Instruction, Multiple Data (SIMD)</strong> describes one explicit vector instruction operating across a fixed-width vector. These ideas are related, not synonyms.</div>
+
+      <h3>Step 5, only on newer GPUs: clusters group blocks</h3>
+      <p>Compute capability 9.0 and newer adds an optional level between block and grid: the <strong>thread-block cluster</strong>. A cluster groups adjacent blocks, and CUDA co-schedules all blocks of that cluster inside one GPC. This allows cluster-scoped synchronization and access to the blocks’ combined shared-memory allocations through <strong>distributed shared memory</strong>.</p>
+      <p>Specifying a cluster does not replace or resize the grid. Each block retains its ordinary grid <code>blockIdx</code>; it also gains a position within its cluster. Cluster shape and maximum supported size are device-dependent.</p>
+      <div class="not-confuse">A cluster is not “one larger block.” Each member remains a distinct block on an SM with its own ordinary shared-memory allocation. Cluster APIs add controlled cooperation among those blocks.</div>
+
+      <h3>Hierarchy recap after the explanation</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Level</th><th>Who forms it?</th><th>Scope and scheduling</th></tr></thead>
+        <tbody>
+          <tr><td><span class="term">Thread</span></td><td>Programmer requests threads in a SIMT kernel.</td><td>Runs one logical instance of the kernel; has its own indices, registers, and local state.</td></tr>
+          <tr><td><span class="term">Warp</span></td><td>Hardware groups block threads into sets of 32.</td><td>Fundamental SIMT issue group; lanes 0–31 execute a common instruction with an active mask.</td></tr>
+          <tr><td><span class="term">Thread block / CTA</span></td><td>Programmer chooses 1D/2D/3D dimensions.</td><td>All its threads run on one SM, share block shared memory, and can use <code>__syncthreads()</code>.</td></tr>
+          <tr><td><span class="term">Thread-block cluster</span></td><td>Optional programmer-specified group on CC 9.0+.</td><td>Blocks are co-scheduled in one GPC and can cooperate using cluster synchronization and distributed shared memory.</td></tr>
+          <tr><td><span class="term">Grid</span></td><td>One kernel launch creates a 1D/2D/3D grid of blocks.</td><td>Blocks may run in any order, concurrently or serially. A normal kernel must not assume an order.</td></tr>
+        </tbody>
+      </table></div>
+      <figure>
+        <img src="assets/nvidia/grid-of-thread-blocks.png" alt="A grid containing multiple thread blocks, each containing multiple threads.">
+        <figcaption>Programming hierarchy. Dimensions are logical coordinates, useful for vectors, matrices, images, and volumes. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">§1.2.2.1</a>.</figcaption>
+      </figure>
+      <h3>The canonical one-dimensional index</h3>
+      <pre><code>__global__ void square(const float* input, float* output, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i &lt; n) {
+        output[i] = input[i] * input[i];
+    }
+}</code></pre>
+      <p><code>threadIdx</code> is the thread’s coordinate inside its block. <code>blockIdx</code> is the block’s coordinate inside the grid. <code>blockDim</code> and <code>gridDim</code> are the corresponding dimensions. Each is a built-in <code>dim3</code>-like value with <code>.x</code>, <code>.y</code>, and <code>.z</code>.</p>
+      <div class="walkthrough">
+        <strong>Decode the complete kernel.</strong>
+        <ul>
+          <li><code>const float* input</code> is a pointer to input floating-point values. <code>const</code> promises this kernel will not modify them.</li>
+          <li><code>float* output</code> is a pointer to writable result values. Square brackets select one array element.</li>
+          <li><code>int n</code> is the number of valid elements.</li>
+          <li><code>int i</code> creates one private integer variable for each CUDA thread.</li>
+          <li><code>blockIdx.x * blockDim.x</code> counts all threads belonging to earlier blocks; adding <code>threadIdx.x</code> selects this thread's global element.</li>
+          <li><code>if (i &lt; n)</code> is the bounds check. Extra threads in the last block execute the test but do not touch the arrays.</li>
+        </ul>
+      </div>
+      <h3>Hand execute: N = 10, 4 threads per block</h3>
+      <p>The host launches <code>blocks = ceil(10/4) = 3</code>. Twelve threads exist, but the bounds check permits only indices 0–9.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th><code>blockIdx.x</code></th><th><code>threadIdx.x</code></th><th><code>i = block*4 + thread</code></th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>0,1,2,3</td><td>0,1,2,3</td><td>All valid</td></tr>
+          <tr><td>1</td><td>0,1,2,3</td><td>4,5,6,7</td><td>All valid</td></tr>
+          <tr><td>2</td><td>0,1,2,3</td><td>8,9,10,11</td><td>8,9 valid; 10,11 return/do nothing</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Two-dimensional index</h3>
+      <pre><code>int x = blockIdx.x * blockDim.x + threadIdx.x;
+int y = blockIdx.y * blockDim.y + threadIdx.y;
+if (x &lt; width &amp;&amp; y &lt; height) {
+    int linear = y * width + x;  // row-major memory
+}</code></pre>
+      <p>This fragment belongs inside a 2D kernel. <code>&amp;&amp;</code> means both bounds must be true. A C/C++ array is stored linearly, so <code>y * width</code> skips the complete rows before row <code>y</code>, and <code>+ x</code> moves to column <code>x</code>. For <code>width=6</code>, coordinate <code>(x=2,y=3)</code> becomes element <code>3*6+2=20</code>.</p>
+      <h3>Warps are cut within each block</h3>
+      <p>Threads are linearized with x varying fastest, then y, then z. Consecutive groups of 32 form warps. A 40-thread block has warp 0 with threads 0–31 and warp 1 with threads 32–39; 24 lanes in the second warp are permanently inactive. That is why block sizes are usually multiples of 32.</p>
+      <figure>
+        <img src="assets/nvidia/active-warp-lanes.png" alt="Warp lane masks showing all lanes active, even lanes active, and odd lanes active.">
+        <figcaption>Active masks during divergent paths. Green lanes execute; gray lanes are masked. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">§1.2.2.2</a>.</figcaption>
+      </figure>
+      <h3>Blocks do not have an execution order</h3>
+      <p>A grid can contain millions of blocks while a GPU has only tens or hundreds of SMs. The hardware assigns blocks as resources become available. A correct normal kernel must remain correct if blocks execute in any order, simultaneously, or one after another.</p>
+      <div class="callout critical"><strong>Deadlock rule.</strong> Do not build a same-kernel “global barrier” by having blocks spin until other blocks finish. Waiting blocks may occupy every SM and prevent the blocks they await from ever being scheduled. Use separate kernel launches, cooperative launch features when their constraints are satisfied, or cluster-scoped synchronization inside a cluster.</div>
+      <h3>Thread-block clusters</h3>
+      <p>On compute capability 9.0+, adjacent blocks can be grouped into a 1D/2D/3D cluster. Every block of a cluster is co-scheduled inside one GPC. Cooperative Groups supplies cluster synchronization and access to <em>distributed shared memory</em>: the shared-memory allocations of all cluster blocks, addressable across the cluster. Cluster size is hardware dependent.</p>
+      <figure>
+        <img src="assets/nvidia/thread-block-scheduling-with-clusters.png" alt="Thread blocks in a cluster scheduled simultaneously to SMs within one GPC.">
+        <figcaption>Clusters add a cooperation scope between block and grid. They do not change a block’s normal <code>blockIdx</code>. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">§1.2.2.1.1</a>.</figcaption>
+      </figure>
+      <div class="callout warn"><strong>Your RTX 3060 is CC 8.6.</strong> Learn the model and run <a href="examples/09_cluster_support.cu">the support detector</a>, but full cluster code needs Hopper-class CC 9.0+ hardware.</div>
+    </section>
+
+    <section id="memory">
+      <h2>4. Memory, caching, and visibility from first principles</h2>
+      <h3>Why a memory hierarchy exists</h3>
+      <p>Processors need data faster than large memories can usually deliver it. Storage technologies trade capacity, cost, and access speed. Registers are tiny and very close to execution hardware. On-chip caches and shared memory are larger but still limited. GPU DRAM holds gigabytes, but reaching it costs far more time and energy than using an already available register.</p>
+      <p>A <strong>memory address</strong> identifies a location in an address space. A load asks for the value at an address; a store writes a value to an address. The CUDA memory model gives different address spaces different visibility and behavior. The same word “memory” therefore covers several physically and logically different things.</p>
+      <div class="definition">
+        <span class="label">Definition — memory hierarchy</span>
+        A memory hierarchy is a set of storage levels arranged so that small, fast storage serves active data while larger, slower storage provides capacity. Performance depends not only on arithmetic, but on how often data must travel between these levels.
+      </div>
+
+      <h3>Before CUDA memory spaces: how a cache works</h3>
+      <p>A <strong>cache</strong> is hardware-managed storage that keeps copies of data from a farther memory. Program code normally names the original memory address; hardware checks whether a nearby cached copy is available.</p>
+      <ol>
+        <li>A thread requests an address.</li>
+        <li>The cache checks identifying metadata called a <strong>tag</strong> to determine whether it currently contains the memory region holding that address.</li>
+        <li>If present, the request is a <strong>cache hit</strong> and can be served from that cache level.</li>
+        <li>If absent, it is a <strong>cache miss</strong>. The request proceeds to a farther cache or DRAM, and the returned region may replace an existing cache entry.</li>
+      </ol>
+      <p>Caches move data in fixed-size regions commonly called <strong>cache lines</strong> or <strong>sectors</strong>, not one arbitrary byte at a time. Exact units depend on the architecture and transaction. Fetching nearby data together helps when programs exhibit:</p>
+      <ul>
+        <li><strong>Temporal locality:</strong> data used recently is likely to be used again soon.</li>
+        <li><strong>Spatial locality:</strong> addresses near a recently used address are likely to be used soon.</li>
+      </ul>
+      <div class="walkthrough">
+        <strong>Small cache example.</strong>
+        If a thread loads <code>A[100]</code>, hardware may fetch a whole aligned region containing nearby elements. A later load of <code>A[101]</code> may hit that region. If many unrelated accesses displace it first, the later load may miss. The program names A’s addresses either way; the cache decides whether it can supply a copy.
+      </div>
+      <div class="not-confuse">A cache is not a separate array that CUDA code normally fills and indexes. It is hardware-managed and stores temporary copies. CUDA <strong>shared memory</strong> is different: the program explicitly declares it, loads values into it, indexes it, and synchronizes its users.</div>
+
+      <h3>L1, L2, and constant cache on a GPU</h3>
+      <p>Each SM has a nearby <strong>L1 data cache</strong>. On current architectures, L1 and shared memory use a configurable pool of physical on-chip storage called the <strong>unified data cache</strong>. “Unified” here means two uses share an on-chip resource.</p>
+      <p>The GPU also has a larger <strong>L2 cache</strong> shared across all SMs. When an SM’s request is not satisfied near the SM, L2 may satisfy it before device DRAM is accessed. Because all SMs connect through L2, it can capture device-wide reuse that a per-SM L1 cannot.</p>
+      <p>SMs also have a <strong>constant cache</strong> for read-only constant data and often kernel parameters. It is especially effective when lanes of a warp request the same constant address because one value can be broadcast.</p>
+      <div class="not-confuse">The <strong>unified data cache</strong> is per-SM on-chip storage used for L1/shared memory. <strong>Unified Memory</strong> is a CUDA allocation and migration feature allowing CPU and GPU access. They share the word “unified” but solve entirely different problems.</div>
+      <p>Cache presence does not remove the need for synchronization. A cache helps obtain data quickly; the CUDA memory model and synchronization operations determine when another thread is allowed to rely on a write becoming visible. <strong>Performance locality</strong> and <strong>correctness ordering</strong> are separate concerns.</p>
+
+      <h3>Registers: the first home for thread variables</h3>
+      <p>When possible, the compiler places a thread’s scalar variables in <strong>registers</strong>. Registers are not manually addressed like an array in ordinary CUDA C++; the compiler maps program values to them. Every active thread needs its own logical register values, allocated from the finite register file of its SM.</p>
+      <p>More registers can make a thread faster by keeping values close, but they consume SM capacity. If one block’s threads collectively require many registers, fewer blocks or warps may be resident. If the compiler cannot keep values in registers, some may <strong>spill</strong> into local memory.</p>
+      <div class="not-confuse">“Private to a thread” does not guarantee “stored in registers.” The compiler decides. Inspect register and spill information with <code>nvcc -Xptxas=-v</code> and profiling tools.</div>
+
+      <h3>Local memory: private address space, not nearby storage</h3>
+      <p><strong>Local memory</strong> is an address space private to one thread. It commonly holds register spills, large automatic arrays, or variables that require addressable storage. Despite its name, it is generally backed by device memory and served through caches, so it can be much slower than a register.</p>
+      <div class="not-confuse">In “local memory,” <em>local</em> describes ownership/visibility, not physical distance. It is not the GPU equivalent of a tiny CPU stack sitting beside an ALU.</div>
+
+      <h3>Shared memory: an explicit block scratchpad</h3>
+      <p><strong>Shared memory</strong> is programmer-managed, on-chip storage allocated per block. Every thread of that block names the same shared array and can exchange values through it. A typical pattern is:</p>
+      <ol>
+        <li>Each thread loads one or more values from global memory into a shared array.</li>
+        <li>The block executes <code>__syncthreads()</code> so all loads are complete before any thread consumes its neighbors’ values.</li>
+        <li>Threads reuse the on-chip values for computation.</li>
+        <li>Results are written to global memory.</li>
+      </ol>
+      <p>Shared memory is fast when used well because software controls reuse and access. It is finite, requires explicit synchronization, and is divided into independently serviced partitions called <strong>banks</strong>. More shared memory per block can reduce the number of blocks resident on an SM. The access-pattern section below explains bank conflicts.</p>
+      <div class="not-confuse">The word <em>shared</em> does not mean “shared by the whole GPU.” Ordinary shared memory belongs to one block. Blocks have separate shared allocations even when they reside on the same SM. Cluster distributed shared memory is a newer, explicitly controlled exception.</div>
+
+      <h3>Global memory: device-wide addressability</h3>
+      <p><strong>Global memory</strong> is the CUDA address space normally backed by the GPU’s attached DRAM. Any thread on the device can address a valid global allocation, which makes it the normal home of large input and output arrays. “Global” describes device-wide addressability; it does not mean every access is instantly visible in every thread without ordering.</p>
+      <p>Global memory offers high total bandwidth, but an individual access can have long latency. GPUs cope by combining nearby warp requests into fewer transactions—a behavior called <strong>coalescing</strong>—and through caches, data reuse, asynchronous movement, and enough resident warps to hide waiting time.</p>
+      <p>In a multi-GPU system, each GPU normally has its own global-memory DRAM. “Global” means global to the threads and engines of that GPU, not automatically global to every CPU and GPU in the computer.</p>
+      <div class="not-confuse">Global memory is not the same as host/system memory. On a discrete GPU they are normally different DRAM systems. CUDA APIs, mapped-memory facilities, peer access, or Unified Memory mechanisms determine how other processors reach the data.</div>
+
+      <h3>PCIe and NVLink: paths between processors, not memory types</h3>
+      <div class="definition">
+        <span class="label">Definition — interconnect, PCIe, and NVLink</span>
+        An <strong>interconnect</strong> is a hardware path that carries commands and data between processors or memory systems. <strong>PCI Express (PCIe)</strong> is the common general-purpose expansion interconnect used by discrete GPUs. <strong>NVLink</strong> is NVIDIA's high-bandwidth interconnect technology; depending on the system, it can connect GPUs to other GPUs or connect an NVIDIA CPU and GPU. The exact bandwidth, latency, and <em>coherence</em> behavior—whether processor caches maintain a consistent view of shared data—depends on the NVLink generation and platform.
+      </div>
+      <p>Explicit copies, direct remote loads, automatic data movement, and multi-GPU transfers may all travel over an interconnect. NVLink often provides more bandwidth and lower latency than the corresponding PCIe connection, but it remains a transport mechanism. It does not by itself specify who allocated the memory, which processor may dereference a pointer, whether caches are coherent, or whether data must migrate.</p>
+      <div class="not-confuse">“Connected by NVLink” does not automatically mean “all ordinary CPU memory is GPU-accessible” or “CPU and GPU caches are coherent.” Those properties require support from the particular CPU, GPU, operating system, memory-allocation method, and CUDA feature. Query capabilities and follow the platform documentation.</div>
+
+      <h3>Host memory, device memory, and explicit data movement</h3>
+      <p>In the basic discrete-GPU model, a pointer returned by ordinary host allocation such as <code>new</code> or <code>malloc</code> refers to CPU-attached <strong>system memory</strong>. A pointer returned by <code>cudaMalloc</code> refers to GPU-attached device memory. Ordinary CPU code uses the first allocation; GPU kernels use the second.</p>
+      <p><code>cudaMemcpy</code> explicitly transfers bytes between host and device allocations. CUDA also supports copies within one GPU and, when the hardware and software permit <strong>peer access</strong>, directly between one GPU and another GPU's allocation. Transfers can be expensive, so a tiny GPU computation may lose more time to movement and launch overhead than it saves in arithmetic.</p>
+
+      <h3>Before the first memory program: C++ notation CUDA relies on</h3>
+      <ul>
+        <li>A <strong>pointer</strong> stores a memory address. <code>float* dValues</code> declares a pointer intended to refer to floating-point values. The <code>*</code> is part of the pointer type here.</li>
+        <li><code>nullptr</code> means the pointer does not currently point to an allocation. Starting with <code>nullptr</code> avoids an uninitialized, meaningless address.</li>
+        <li>The address-of operator <code>&amp;</code> asks for the address of a CPU variable. <code>cudaMalloc(&amp;dValues, bytes)</code> needs that address so it can write the newly allocated device pointer into <code>dValues</code>.</li>
+        <li><code>sizeof(float)</code> is the number of bytes used by one <code>float</code>. CUDA allocation and copy functions take byte counts, so <code>N * sizeof(float)</code> reserves room for <code>N</code> values.</li>
+        <li>Names beginning with <code>h</code> and <code>d</code>, such as <code>hValues</code> and <code>dValues</code>, are only a human convention for “host” and “device.” CUDA does not assign meaning to those letters.</li>
+      </ul>
+
+      <h3>A complete first memory program: add one to four values</h3>
+      <p>This is a complete <code>.cu</code> file rather than a fragment. It intentionally uses only four values and one four-thread block so every thread can be traced by hand.</p>
+      <div class="flow" aria-label="Explicit CUDA memory timeline"><span><code>hValues</code><br>CPU memory</span><i>→ copy</i><span><code>dValues</code><br>GPU memory</span><i>→ kernel</i><span>changed <code>dValues</code></span><i>→ copy</i><span>changed <code>hValues</code></span></div>
+      <pre><code>#include &lt;cuda_runtime.h&gt;  // CUDA Runtime types and functions
+#include &lt;cstddef&gt;         // std::size_t, a type for byte counts
+#include &lt;cstdio&gt;          // std::printf and std::fprintf
+#include &lt;cstdlib&gt;         // std::exit and EXIT_FAILURE
+
+void requireCuda(cudaError_t status, const char* operation) {
+    if (status != cudaSuccess) {
+        std::fprintf(stderr, "%s failed: %s\n",
+                     operation, cudaGetErrorString(status));
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+__global__ void addOne(float* values, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i &lt; n) values[i] += 1.0f;
+}
+
+int main() {
+    constexpr int N = 4;
+    constexpr int THREADS = 4;
+    float hValues[N] = {10.0f, 20.0f, 30.0f, 40.0f};
+    float* dValues = nullptr;
+    const std::size_t bytes = N * sizeof(float);
+
+    requireCuda(cudaMalloc(&amp;dValues, bytes), "cudaMalloc");
+    requireCuda(cudaMemcpy(dValues, hValues, bytes,
+                           cudaMemcpyHostToDevice), "copy to GPU");
+
+    addOne&lt;&lt;&lt;1, THREADS&gt;&gt;&gt;(dValues, N);
+    requireCuda(cudaGetLastError(), "addOne launch");
+    requireCuda(cudaDeviceSynchronize(), "addOne execution");
+
+    requireCuda(cudaMemcpy(hValues, dValues, bytes,
+                           cudaMemcpyDeviceToHost), "copy to CPU");
+    requireCuda(cudaFree(dValues), "cudaFree");
+    dValues = nullptr;  // cudaFree releases the allocation but does not clear this pointer.
+
+    for (int i = 0; i &lt; N; ++i) std::printf("%.0f ", hValues[i]);
+    std::printf("\n");  // expected: 11 21 31 41
+    return 0;
+}</code></pre>
+      <div class="callout warning">
+        <strong>Why assign <code>nullptr</code> after <code>cudaFree</code>?</strong>
+        <code>cudaFree(dValues)</code> releases the device allocation, but it receives the pointer by value and therefore cannot change the host variable <code>dValues</code>. Immediately afterward, <code>dValues</code> still contains the old address, but that address is no longer valid: it is a <em>dangling pointer</em>. Setting <code>dValues = nullptr</code> does not free anything a second time; it simply marks the host variable as pointing nowhere. This reset is defensive good practice when the variable remains in scope. At the very end of <code>main</code> it is not required for resource cleanup, but showing it establishes the safer habit. Never copy through, launch a kernel with, or otherwise dereference <code>dValues</code> after it has been freed.
+      </div>
+      <p>The runnable source is <a href="examples/11_add_one_walkthrough.cu">11_add_one_walkthrough.cu</a>. It contains the same program plus an explicit PASS/FAIL validation, so you can compile it without reconstructing code from the page.</p>
+      <pre><code>cd GPU_Study_Guide&#92;examples
+nvcc -std=c++17 -arch=native 11_add_one_walkthrough.cu -o first_cuda.exe
+.&#92;first_cuda.exe</code></pre>
+      <p><code>nvcc</code> is CUDA's compiler driver. <code>-std=c++17</code> selects the C++17 language version. <code>-arch=native</code> generates GPU code for the GPU in this machine. <code>-o first_cuda.exe</code> names the output program. The final PowerShell command runs that program from the current directory.</p>
+
+      <div class="walkthrough">
+        <strong>First understand the imports and error helper.</strong>
+        <ul>
+          <li><code>#include</code> makes declarations from a header visible to the compiler. Angle brackets mean “find an installed/system header.” They do not allocate memory or run code.</li>
+          <li><code>&lt;cuda_runtime.h&gt;</code> declares CUDA Runtime items such as <code>cudaError_t</code>, <code>cudaMalloc</code>, and <code>cudaMemcpy</code>.</li>
+          <li><code>&lt;cstddef&gt;</code> supplies <code>std::size_t</code>, an unsigned integer type intended for object sizes and byte counts.</li>
+          <li><code>&lt;cstdio&gt;</code> supplies formatted printing. <code>stdout</code> is the normal output stream; <code>stderr</code> is the error stream.</li>
+          <li><code>&lt;cstdlib&gt;</code> supplies program-exit facilities. <code>EXIT_FAILURE</code> is a standard non-success exit status.</li>
+          <li><code>const char* operation</code> is a pointer to a read-only text label such as <code>"cudaMalloc"</code>. <code>!=</code> means “not equal.”</li>
+          <li>CUDA Runtime calls return a <code>cudaError_t</code> status. <code>cudaSuccess</code> means the operation succeeded; <code>cudaGetErrorString</code> translates an error status into readable text. <code>requireCuda</code> stops immediately instead of allowing the program to continue with invalid memory.</li>
+        </ul>
+      </div>
+
+      <div class="walkthrough">
+        <strong>Then follow the CPU/GPU timeline.</strong>
+        <ol>
+          <li>The CPU begins in <code>main</code>. <code>constexpr</code> declares compile-time constants. It creates four host values and an empty device-pointer variable.</li>
+          <li><code>cudaMalloc</code> reserves 16 device bytes when a float is four bytes. It changes <code>dValues</code> to hold the new GPU address; it does not initialize those bytes.</li>
+          <li>The first <code>cudaMemcpy</code> copies the four CPU values to GPU memory. Destination comes first, source second. <code>cudaMemcpyHostToDevice</code> states the direction.</li>
+          <li><code>addOne&lt;&lt;&lt;1,4&gt;&gt;&gt;</code> creates one block of four threads. Threads 0–3 calculate indices 0–3 and each update one element.</li>
+          <li>Inside the kernel, <code>values[i] += 1.0f</code> means “read this element, add one, and write it back.” The <code>f</code> suffix makes the numeric literal a <code>float</code>.</li>
+          <li>A launch is asynchronous. <code>cudaGetLastError</code> checks whether the launch request was valid; <code>cudaDeviceSynchronize</code> waits and reports errors that occurred while the kernel actually ran.</li>
+          <li>The second <code>cudaMemcpy</code> copies the changed values back to the host array. <code>cudaFree</code> releases the device allocation. The CPU prints <code>11 21 31 41</code>.</li>
+        </ol>
+      </div>
+
+      <h3>What is <code>cuda_check.cuh</code>?</h3>
+      <p>Most runnable labs use <code>#include "cuda_check.cuh"</code> to avoid repeating the longer <code>requireCuda</code> function in every file. A <strong>header</strong> is a source file intended to be included by other source files. The extension <code>.cuh</code> conventionally means “a header that may contain CUDA C++”; the compiler does not give the letters magical behavior. Quotes tell the preprocessor to look for a project-local header.</p>
+      <p><code>CUDA_CHECK</code> is a project-defined <strong>preprocessor macro</strong>, not a CUDA keyword or Runtime function. Before normal C++ compilation, the preprocessor substitutes its error-checking code around the call. Conceptually:</p>
+      <pre><code>CUDA_CHECK(cudaMalloc(&amp;dValues, bytes));
+
+// means approximately the same thing as:
+requireCuda(cudaMalloc(&amp;dValues, bytes), "cudaMalloc");</code></pre>
+      <p>The actual header additionally reports <code>__FILE__</code> and <code>__LINE__</code>, predefined compiler values identifying where the failed call appeared. In a macro definition, <code>#call</code> converts the supplied call into readable text for the error message. You may use the simpler function while learning; the macro exists only to improve diagnostics and reduce repetition. Read the commented source in <a href="examples/cuda_check.cuh">cuda_check.cuh</a> after the complete program above makes sense.</p>
+      <details>
+        <summary>Decode the remaining syntax in <code>cuda_check.cuh</code></summary>
+        <ul>
+          <li><code>#pragma once</code> tells the compiler to process this header only once per source file, even if several included headers lead back to it.</li>
+          <li><code>inline</code> allows the small helper function to be defined in a header included by multiple programs without creating conflicting function definitions.</li>
+          <li><code>#define CUDA_CHECK(call) ...</code> declares the macro and names its placeholder <code>call</code>.</li>
+          <li><code>#call</code> turns the supplied expression into text; <code>__FILE__</code> and <code>__LINE__</code> are filled in by the compiler.</li>
+          <li>The backslash at the end of the <code>#define</code> line continues that macro definition onto the following source line. It is preprocessing syntax, not a CUDA memory or execution feature.</li>
+        </ul>
+      </details>
+
+      <h3>Pageable, pinned, and mapped host memory</h3>
+      <p>Operating systems manage memory in fixed-size regions called <strong>pages</strong>. Memory returned by ordinary CPU allocation is usually <strong>pageable</strong>: the operating system may move its physical pages or temporarily place them on storage. <strong>Page-locked</strong>, or <strong>pinned</strong>, host memory is kept at stable physical locations while pinned. CUDA can transfer pinned memory efficiently using <strong>direct memory access (DMA)</strong>, in which a device-transfer engine moves bytes without making the CPU execute a load and store for every value. Asynchronous copies require suitable pinned host buffers. Pinning too much reduces memory available to the operating system, so it is a limited resource—not a default replacement for every host allocation.</p>
+      <p><strong>Mapped host memory</strong> is pinned CPU memory for which CUDA also provides a device-visible address. A kernel can then load or store that host allocation directly across PCIe or NVLink instead of first copying it into GPU DRAM. This is often called <strong>zero-copy</strong>: it avoids an explicit staging copy, but it does not mean zero traffic or zero cost.</p>
+      <div class="flow" aria-label="Mapped host memory access"><span><code>hMapped</code><br>CPU memory</span><i>↔ PCIe / NVLink</i><span>GPU kernel using <code>dView</code></span></div>
+      <div class="walkthrough">
+        <strong>Mapped version of the four-value program.</strong> Reuse the same imports and <code>requireCuda</code> helper from the complete program above.
+        <pre><code>__global__ void scaleMapped(float* values, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i &lt; n) values[i] *= 3.0f;
+}
+
+int main() {
+    constexpr int N = 4;
+    const std::size_t bytes = N * sizeof(float);
+    float* hMapped = nullptr;  // CPU view
+    float* dView   = nullptr;  // GPU view of the same host allocation
+
+    requireCuda(cudaSetDeviceFlags(cudaDeviceMapHost), "enable mapping");
+    requireCuda(cudaHostAlloc(&amp;hMapped, bytes, cudaHostAllocMapped),
+                "allocate mapped host memory");
+    requireCuda(cudaHostGetDevicePointer(&amp;dView, hMapped, 0),
+                "obtain device view");
+
+    for (int i = 0; i &lt; N; ++i) hMapped[i] = static_cast&lt;float&gt;(i + 1);
+
+    scaleMapped&lt;&lt;&lt;1, 4&gt;&gt;&gt;(dView, N);
+    requireCuda(cudaGetLastError(), "scaleMapped launch");
+    requireCuda(cudaDeviceSynchronize(), "scaleMapped execution");
+
+    for (int i = 0; i &lt; N; ++i) std::printf("%.0f ", hMapped[i]);
+    std::printf("\n");  // expected: 3 6 9 12
+    requireCuda(cudaFreeHost(hMapped), "cudaFreeHost");
+    return 0;
+}</code></pre>
+        <ol>
+          <li><code>cudaSetDeviceFlags(cudaDeviceMapHost)</code> requests host-memory mapping support before a CUDA context is created.</li>
+          <li><code>cudaHostAlloc</code> allocates host memory. The flag <code>cudaHostAllocMapped</code> asks CUDA to pin it and make a device mapping available.</li>
+          <li><code>hMapped</code> and <code>dView</code> are two pointer views of the same CPU-owned allocation. CPU code initializes through <code>hMapped</code>; the kernel receives <code>dView</code>.</li>
+          <li><code>static_cast&lt;float&gt;</code> explicitly converts the integer <code>i+1</code> into a floating-point value.</li>
+          <li>There is no <code>cudaMemcpy</code>. Kernel loads and stores travel to host memory through the mapping, which is why “no explicit copy” does not mean “no data transfer.”</li>
+          <li>After synchronization, the CPU reads the changed values through <code>hMapped</code>. <code>cudaFreeHost</code>, not <code>cudaFree</code>, releases memory allocated by <code>cudaHostAlloc</code>.</li>
+        </ol>
+      </div>
+      <p>Mapped access serves the kernel's memory operations over the interconnect. That has higher latency and usually lower bandwidth than well-coalesced access to local GPU DRAM, and repeatedly touching the same remote data repeats interconnect traffic. It can still be useful for small, one-pass, producer/consumer, or integrated-system workloads. Check the device's <code>canMapHostMemory</code> capability before relying on it.</p>
+      <p>Run the complete checked example in <a href="examples/10_mapped_host_memory.cu">10_mapped_host_memory.cu</a>. It uses 17 elements and eight threads per block, so you can reuse the three-block hand calculation from vector addition while changing only where the data is stored.</p>
+      <div class="not-confuse"><strong>Pinned</strong> describes whether host pages can move. <strong>Mapped</strong> describes whether the GPU has a usable mapping to them. Pinned buffers are useful for copies even when kernels never directly access them; mapped host memory is specifically exposed to device code.</div>
+
+      <h3>When CPU and GPU share physical memory</h3>
+      <p>Some integrated GPUs and systems-on-chip place CPU and GPU beside the same physical DRAM. Some tightly coupled CPU–GPU platforms provide coherent access to system-allocated memory over links such as <strong>NVLink-C2C</strong>, where C2C means chip-to-chip. These designs can avoid some physical copies, but the host/device roles still exist, and supported allocation, synchronization, caching, and performance behavior remains platform-specific.</p>
+      <p>Conversely, a discrete GPU with its own DRAM may still access selected CPU allocations through mapped memory or system-supported shared-memory features. Therefore, “physically one memory,” “one virtual address,” and “both processors may access it” are three separate claims.</p>
+
+      <h3>Unified virtual addressing: coordinated addresses, not automatic sharing</h3>
+      <div class="definition">
+        <span class="label">Definition — virtual address and memory page</span>
+        A <strong>virtual address</strong> is the address used by program code; hardware and system software translate it to a physical storage location. Memory is managed in fixed-size regions called <strong>pages</strong>, which can be mapped, protected, or moved as units.
+      </div>
+      <p>Currently supported CUDA systems use a <strong>unified virtual address space</strong>, commonly called Unified Virtual Addressing (UVA). CPU memory and each GPU's memory occupy distinct ranges in one coordinated virtual address space, allowing CUDA to determine which allocation or processor owns a given address. In a multi-GPU system, each GPU's memory range is distinct.</p>
+      <div class="not-confuse">UVA coordinates pointer values and identifies address ownership. It does not make every allocation dereferenceable by every processor, does not place CPU and GPU data in one physical DRAM, and does not make accesses equally fast.</div>
+
+      <h3>Unified Memory: one allocation, managed placement</h3>
+      <p><code>cudaMallocManaged</code> creates a <strong>Unified Memory</strong> allocation that CPU and GPU code can access under the platform's support rules. CUDA's runtime, driver, operating system, and hardware cooperate to make the data reachable. Depending on the system, that may mean migrating pages to the accessing processor, mapping remote memory, or accessing physically shared/coherent memory without migration.</p>
+      <p><strong>Coherence</strong> means the memory system maintains a defined relationship among copies held in processor caches so permitted accesses can observe updates according to the platform's memory rules. Coherence does not remove data races and does not replace CUDA synchronization: the CPU must still wait before consuming a kernel's results, and concurrent conflicting CPU/GPU accesses require supported synchronization.</p>
+      <p>Unified Memory removes much explicit copy bookkeeping, but not the cost of placement or transport. If CPU and GPU alternately touch the same pages, migration or remote access can become expensive. Best performance usually comes from keeping each phase's data near the processor using it.</p>
+      <div class="not-confuse"><strong>UVA</strong> coordinates address ranges. <strong>Mapped host memory</strong> exposes selected pinned CPU pages to the GPU for remote access. <strong>Unified Memory</strong> manages accessibility and placement for an allocation. <strong>NVLink/PCIe</strong> transports data. <strong>Unified data cache</strong> is per-SM on-chip L1/shared-memory storage. None of these terms is a synonym for another.</div>
+      <p>CUDA reports these as separate device capabilities because one does not imply the others:</p>
+      <ul>
+        <li><code>unifiedAddressing</code>: the device participates in UVA.</li>
+        <li><code>canMapHostMemory</code>: the device can use mappings of suitable pinned host allocations.</li>
+        <li><code>managedMemory</code>: the device supports CUDA managed allocations.</li>
+        <li><code>concurrentManagedAccess</code>: the platform supports the documented forms of simultaneous CPU/GPU access to managed memory. A false value means code must not assume such concurrent access.</li>
+        <li><code>pageableMemoryAccess</code>: the device can directly access supported pageable host allocations. This is broader than explicitly mapping a pinned allocation and is not available on every platform.</li>
+      </ul>
+
+      <h3>Visibility, lifetime, and location are three separate properties</h3>
+      <p>When learning a memory space, ask three questions:</p>
+      <ol>
+        <li><strong>Who can name it?</strong> One thread, one block, one cluster, the device, or the host?</li>
+        <li><strong>How long does it exist?</strong> For a function call, kernel, block, allocation, or application?</li>
+        <li><strong>Where is it normally stored?</strong> Registers, SM on-chip storage, GPU DRAM, or system DRAM?</li>
+      </ol>
+      <p>These axes prevent misleading shortcuts. For example, local memory is thread-private but physically backed by device memory; shared memory is block-visible and physically on-chip; global memory is device-visible and physically in DRAM.</p>
+
+      <h3>Memory-space recap after the explanation</h3>
+      <p>Performance depends on where data lives, how many threads can see it, and how efficiently a warp accesses it. “Closer” storage is usually smaller and faster, but exact latency is architecture- and access-dependent.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Memory / storage</th><th>Physical idea</th><th>Visibility / lifetime</th><th>Typical use</th></tr></thead>
+        <tbody>
+          <tr><td><span class="term">Registers</span></td><td>Per-SM register file, compiler allocated</td><td>Private logical state per thread; kernel lifetime</td><td>Scalars and frequently used temporaries</td></tr>
+          <tr><td><span class="term">Local memory</span></td><td>Thread-private address space, usually backed by device memory and cached</td><td>Private per thread</td><td>Register spills, large/thread-indexed local arrays</td></tr>
+          <tr><td><span class="term">Shared memory</span></td><td>Programmer-managed on-chip storage in the SM unified data cache</td><td>Visible to a block; cluster DSM extends reach on CC 9.0+</td><td>Reuse, tiling, cooperation, reductions, halos</td></tr>
+          <tr><td><span class="term">L1 / unified data cache</span></td><td>Per SM; shares physical resources with shared memory on modern GPUs</td><td>Hardware-managed cache for that SM</td><td>Recent global/local loads</td></tr>
+          <tr><td><span class="term">L2 cache</span></td><td>Larger cache shared by all SMs</td><td>Device-wide hardware-managed cache</td><td>Cross-SM temporal locality, DRAM traffic reduction</td></tr>
+          <tr><td><span class="term">Global memory</span></td><td>GPU-attached DRAM</td><td>All threads/device engines; allocation lifetime</td><td>Large input/output arrays</td></tr>
+          <tr><td><span class="term">Constant memory/cache</span></td><td>Read-only device address space with per-SM cache</td><td>Grid-wide read-only kernel data</td><td>Small values read uniformly by a warp</td></tr>
+          <tr><td><span class="term">Texture/surface paths</span></td><td>Specialized cached access semantics</td><td>Device-visible objects</td><td>Spatial access, interpolation or surface operations; less central in beginner CUDA</td></tr>
+          <tr><td><span class="term">Pageable host memory</span></td><td>Ordinary CPU allocation in system DRAM</td><td>CPU; OS may move/page its physical storage</td><td>General application data</td></tr>
+          <tr><td><span class="term">Pinned host memory</span></td><td>CPU memory locked at stable physical pages</td><td>CPU; CUDA transfer engines can use it efficiently</td><td>Staging and asynchronous transfers</td></tr>
+          <tr><td><span class="term">Mapped host memory</span></td><td>Pinned CPU memory exposed through a device-visible mapping</td><td>CPU and supported GPU; GPU accesses travel over the interconnect</td><td>Small or one-pass zero-copy access</td></tr>
+          <tr><td><span class="term">Unified Memory</span></td><td>CUDA-managed allocation; physical placement depends on platform and access</td><td>CPU and supported GPUs under CUDA rules</td><td>Simplified data management with locality still important</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warn"><strong>Correction to a common shorthand.</strong> “Local” means private to one thread in the programming model; it does <em>not</em> mean physically near or always fast. Local memory commonly resides in device DRAM when values spill from registers.</div>
+      <h3>Compare explicit allocation with Unified Memory</h3>
+      <p>The complete <code>addOne</code> program used two arrays: <code>hValues</code> in host memory and <code>dValues</code> in device memory. It explicitly copied host → device before the kernel and device → host afterward. Starting with the same imports, <code>requireCuda</code>, and <code>addOne</code> kernel, the managed version of <code>main</code> is:</p>
+      <pre><code>int main() {
+    constexpr int N = 4;
+    const std::size_t bytes = N * sizeof(float);
+    float* values = nullptr;
+
+    requireCuda(cudaMallocManaged(&amp;values, bytes), "cudaMallocManaged");
+
+    // CPU initializes the managed allocation.
+    for (int i = 0; i &lt; N; ++i) values[i] = 10.0f * (i + 1);
+
+    // GPU receives the same pointer; CUDA makes its pages accessible.
+    addOne&lt;&lt;&lt;1, 4&gt;&gt;&gt;(values, N);
+    requireCuda(cudaGetLastError(), "addOne launch");
+    requireCuda(cudaDeviceSynchronize(), "addOne execution");
+
+    // CPU reads only after the GPU has completed.
+    for (int i = 0; i &lt; N; ++i) std::printf("%.0f ", values[i]);
+    std::printf("\n");  // expected: 11 21 31 41
+
+    requireCuda(cudaFree(values), "cudaFree");
+    return 0;
+}</code></pre>
+      <div class="walkthrough">
+        <strong>What changed?</strong>
+        <ol>
+          <li><code>cudaMallocManaged</code> creates one managed allocation rather than a separate host array and device allocation.</li>
+          <li>The CPU and kernel use the same pointer variable, <code>values</code>, so both explicit <code>cudaMemcpy</code> calls disappear.</li>
+          <li>The synchronization remains essential. A shared pointer does not mean the CPU may read while the kernel is still modifying the data.</li>
+          <li>CUDA may still migrate pages or serve accesses remotely. The code is simpler, but data movement has not become free.</li>
+        </ol>
+      </div>
+
+      <h3>A complete shared-memory kernel: reverse eight values</h3>
+      <p>This kernel is deliberately limited to one block of eight threads. Each thread first copies one global-memory value into a shared array. After the barrier, it reads the element written by the thread at the opposite position.</p>
+      <pre><code>__global__ void reverseEight(const int* input, int* output) {
+    __shared__ int tile[8];
+    int t = threadIdx.x;
+
+    tile[t] = input[t];   // thread t writes shared element t
+    __syncthreads();      // wait until all eight shared writes are complete
+
+    output[t] = tile[7 - t];
+}
+
+// Host launch: exactly one block containing eight threads.
+reverseEight&lt;&lt;&lt;1, 8&gt;&gt;&gt;(dInput, dOutput);</code></pre>
+      <div class="walkthrough">
+        <strong>Hand execute four representative threads.</strong>
+        <ul>
+          <li>Thread 0 writes <code>tile[0] = input[0]</code>, then later reads <code>tile[7]</code>.</li>
+          <li>Thread 1 writes <code>tile[1]</code>, then reads <code>tile[6]</code>.</li>
+          <li>Thread 6 writes <code>tile[6]</code>, then reads <code>tile[1]</code>.</li>
+          <li>Thread 7 writes <code>tile[7]</code>, then reads <code>tile[0]</code>.</li>
+        </ul>
+        <code>__shared__</code> creates one eight-integer array for the whole block, not one array per thread. <code>__syncthreads()</code> is CUDA's built-in block barrier; its empty parentheses mean it takes no arguments. <code>dInput</code> and <code>dOutput</code> stand for device pointers that the omitted host setup allocates and fills using the explicit-memory sequence learned above. Without the barrier, thread 0 could read <code>tile[7]</code> before thread 7 had written it. Run the complete allocation, copy, launch, validation, and cleanup code in <a href="examples/05_shared_reverse.cu">05_shared_reverse.cu</a>.
+      </div>
+      <div class="callout critical"><strong>Barrier rule.</strong> Every non-exited thread in the block must reach a given <code>__syncthreads()</code>. Putting it in a branch taken by only some threads can hang or cause undefined behavior.</div>
+      <h3>Caches versus programmer-managed memory</h3>
+      <p>L1/L2 are transparent: hardware decides what remains cached. Shared memory is explicit: your code stages and synchronizes data. Use shared memory when reuse and access order are predictable enough to justify the extra instructions and barriers. Otherwise, caches may already do the job.</p>
+      <h3>Coalescing: make a warp access nearby addresses</h3>
+      <div class="grid2">
+        <figure>
+          <img src="assets/nvidia/perfect_coalescing_32byte_segments.png" alt="Consecutive warp lanes accessing consecutive values in aligned memory segments.">
+          <figcaption>Coalesced: adjacent lanes request adjacent words, combining requests into few memory transactions. NVIDIA Guide <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html">§2.3.4.1</a>.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/nvidia/no_coalescing_32byte_segments.png" alt="Warp lanes accessing scattered values across many memory segments.">
+          <figcaption>Uncoalesced/scattered: more memory segments and wasted transferred bytes. NVIDIA Guide <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html">§2.3.4.1</a>.</figcaption>
+        </figure>
+      </div>
+      <p>For row-major arrays, map consecutive <code>threadIdx.x</code> values to consecutive x positions. This is one reason the usual index formula performs well for vectors.</p>
+      <h3>Shared-memory banks</h3>
+      <p>Shared memory is divided into banks so a warp can service many addresses in parallel. If several active lanes request different addresses in the same bank, requests serialize: a <em>bank conflict</em>. A broadcast of one address is a special efficient case. Padding a 2D shared array, for example <code>tile[32][33]</code> instead of <code>tile[32][32]</code>, often breaks a conflict-prone stride.</p>
+    </section>
+
+    <section id="module1">
+      <h2>5. Module 1 — processor and GPU foundations</h2>
+      <p><strong>Learning target:</strong> explain why GPUs exist, identify forms of parallelism, relate CPU and GPU pipelines, and distinguish a programming model from a hardware execution model.</p>
+
+      <h3>5.1 CPU performance ideas that GPUs build on</h3>
+      <p>GPU architecture is easier to understand if you first know what a modern CPU is trying to improve. Both CPUs and GPUs must fetch instructions, obtain operands, execute operations, access memory, and preserve program correctness. They devote hardware to those jobs in different proportions.</p>
+      <h4>Pipelining</h4>
+      <p>Without a pipeline, a processor could finish every step of one instruction before starting the next. A <strong>pipeline</strong> overlaps stages of different instructions, much like an assembly line. While instruction A executes, instruction B can decode and instruction C can be fetched. Once filled, the pipeline may complete work much more frequently even though one instruction still passes through several stages.</p>
+      <p>A simple teaching pipeline is fetch → decode → execute → memory → writeback. Modern CPUs add structures and stages such as register renaming and scheduling. Module 1 uses the broader front-end/fetch → decode → rename/register access → schedule → execute → writeback view. GPU SMs also have instruction fetch, decode, scheduling/scoreboarding, execution, and writeback behavior, but work is organized around resident warps.</p>
+      <div class="not-confuse">Pipeline <strong>throughput</strong> can improve even if the <strong>latency</strong> of one instruction does not. Overlapping five instructions is not the same as making each instruction take one-fifth the time.</div>
+
+      <h4>Dependencies and instruction-level parallelism</h4>
+      <p>Two instructions are <strong>independent</strong> when neither needs the other’s result. They may execute at the same time on different functional units. They are <strong>dependent</strong> when one consumes a value produced by the other and must wait.</p>
+      <pre><code>// Independent: both can start if two add units are available.
+r1 = r2 + r3;
+r4 = r5 + r6;
+
+// Dependent: the second needs r1 from the first.
+r1 = r2 + r3;
+r4 = r1 + r6;</code></pre>
+      <p><strong>Instruction-level parallelism (ILP)</strong> is the amount of independent instruction work available within an instruction stream. A <strong>superscalar</strong> processor has hardware that can issue more than one instruction per cycle when independent instructions and suitable functional units exist. <strong>IPC</strong>, instructions per cycle, measures the resulting issue/completion rate under a defined interpretation.</p>
+
+      <h4>In-order and out-of-order scheduling</h4>
+      <p>An in-order processor generally considers instructions in program order; a blocked instruction can prevent younger independent work from passing it. An <strong>out-of-order</strong> CPU tracks a window of instructions and allows ready independent operations to execute before older stalled ones, while eventually making the program appear to obey its required architectural behavior.</p>
+      <p>A GPU SM also chooses ready work, but a central strategy is different: it has many resident warps and can choose an instruction from another warp when one warp is stalled. This exploits <strong>thread-level parallelism (TLP)</strong> in addition to ILP.</p>
+      <div class="not-confuse">“Out of order” does not mean “random” and does not permit incorrect results. Hardware preserves required dependencies and externally visible semantics.</div>
+
+      <h4>Branches, prediction, and deeper pipelines</h4>
+      <p>A branch selects the next instruction path. A CPU may <strong>predict</strong> the branch so it can keep a deep pipeline busy before the condition is resolved. A wrong prediction discards speculative work and redirects the pipeline. Deeper pipelines can support high clock frequencies, but a misprediction can waste more in-flight work.</p>
+      <p>GPUs encounter a related but different issue when lanes of one warp choose different paths: warp divergence. That is not the same mechanism as a CPU branch misprediction. A GPU may still predict or optimize control internally, but the CUDA-visible concern is active-lane utilization across divergent paths.</p>
+
+      <h4>Caches and multithreading</h4>
+      <p>A CPU invests heavily in caches because reducing the average wait for one thread is central to latency. A GPU also caches data, but additionally keeps many warp contexts resident so another warp can run during a miss. This hardware multithreading is cheap relative to operating-system thread switching because warp state is already represented in SM resources.</p>
+      <p>Finally, both systems replicate processing hardware. A multicore CPU has multiple CPU cores; a GPU has multiple SMs. More physical processors help only when software exposes independent work and avoids bottlenecks such as serial regions or memory bandwidth.</p>
+      <h4>Recap after the explanation</h4>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Concept</th><th>Definition</th><th>GPU connection</th></tr></thead>
+        <tbody>
+          <tr><td><span class="term">Pipeline</span></td><td>Break instruction processing into stages such as fetch, decode, rename/register access, schedule, execute, and writeback.</td><td>SMs also fetch, decode, schedule, and execute, but scheduling is warp-oriented.</td></tr>
+          <tr><td><span class="term">Instruction-level parallelism (ILP)</span></td><td>Independent instructions from one thread can overlap. Superscalar processors may issue multiple instructions per cycle.</td><td>Each GPU thread can have ILP, while the SM also exploits thread-level parallelism across many warps.</td></tr>
+          <tr><td><span class="term">Out-of-order execution</span></td><td>A CPU searches a window for ready instructions instead of strictly following program order.</td><td>GPUs more prominently hide stalls by issuing instructions from another ready warp; exact SM internals are architecture-specific.</td></tr>
+          <tr><td><span class="term">Deeper pipeline / frequency</span></td><td>More stages can allow a higher clock but increase branch-misprediction and hazard costs.</td><td>GPU throughput is not explained by clock rate alone; parallelism and bandwidth dominate.</td></tr>
+          <tr><td><span class="term">Cache hierarchy</span></td><td>Stores recently used data closer to processors to reduce average access time.</td><td>GPUs use caches plus explicit shared memory to handle bandwidth and reuse.</td></tr>
+          <tr><td><span class="term">Multithreading</span></td><td>Multiple software instruction streams share processor resources.</td><td>An SM keeps many warps resident and rapidly selects ready ones to hide latency.</td></tr>
+          <tr><td><span class="term">Multiprocessor</span></td><td>Replicates processors/cores to run work concurrently.</td><td>A GPU replicates SMs; a grid supplies enough blocks to occupy them.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>5.2 Amdahl’s law</h3>
+      <p>If fraction <em>P</em> can be parallelized, fraction <em>S = 1 − P</em> is serial, and <em>N</em> processors accelerate only the parallel part, ideal speedup is:</p>
+      <pre><code>Speedup(N) = 1 / (S + P/N)</code></pre>
+      <p>Example: if 90% is parallel and 10% serial, even infinitely many processors cap speedup at <code>1/0.10 = 10×</code>. With 100 processors: <code>1/(0.10 + 0.90/100) ≈ 9.17×</code>.</p>
+      <div class="callout"><strong>Lesson.</strong> Accelerating the already-parallel region eventually exposes initialization, transfers, serial reductions, I/O, and launch overhead as the limit.</div>
+
+      <h3>5.3 Task decomposition versus data decomposition</h3>
+      <div class="grid2">
+        <div class="card"><h4>Task decomposition</h4><p>Different workers perform different operations. Example: one computes a sum while another computes min/max over the same array.</p></div>
+        <div class="card"><h4>Data decomposition</h4><p>Workers perform the same operation on different pieces. Example: each CUDA thread adds one vector element; partial results may later be reduced.</p></div>
+      </div>
+      <p>GPU kernels usually favor abundant regular data decomposition, although separate kernels, blocks, warps, or pipelines can express task parallelism.</p>
+
+      <h3>5.4 Flynn’s taxonomy and the terms people mix up</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>SISD</td><td>Single instruction stream, single data stream</td><td>Simple scalar processor</td></tr>
+          <tr><td>SIMD</td><td>One instruction explicitly operates on a fixed-width vector of data</td><td>CPU AVX instruction</td></tr>
+          <tr><td>MISD</td><td>Multiple instruction streams process the same data; rare as a general machine model</td><td>Some fault-tolerant or pipeline interpretations</td></tr>
+          <tr><td>MIMD</td><td>Multiple independent instruction streams and data</td><td>Multicore CPUs, separate GPU warps/SMs at a broad level</td></tr>
+          <tr><td>SPMD</td><td>Programmer launches many instances of the same program on different data</td><td>CUDA kernel threads use indices to choose elements</td></tr>
+          <tr><td>SIMT</td><td>Hardware groups scalar-looking threads and issues a common instruction with per-lane state and masking</td><td>A CUDA warp</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>SPMD is the programming style; SIMT is the warp execution model.</strong> CUDA source looks like one scalar program per thread. Hardware groups those threads into warps.</p>
+
+      <h3>5.5 GPU pipeline and warps</h3>
+      <p>A warp has 32 lanes on current NVIDIA GPUs. One warp instruction is issued with an active mask. The scheduler can select another ready warp when operands are unavailable, a load misses, or a dependency stalls. A <em>wavefront</em> is the analogous AMD term and may have a different width; the course uses warp/wavefront loosely, but CUDA specifically uses <em>warp</em>.</p>
+      <div class="callout warn"><strong>Do not hard-code “future forever.”</strong> CUDA exposes the device warp size as <code>warpSize</code>. NVIDIA warps have been 32 for many generations, but portable explanations should identify it as a device property.</div>
+
+      <h3>5.6 GPU evolution</h3>
+      <ol>
+        <li><strong>Fixed-function graphics:</strong> geometry and raster/pixel stages were specialized hardware.</li>
+        <li><strong>Programmable shaders:</strong> vertex/pixel code became programmable.</li>
+        <li><strong>Unified shaders and CUDA:</strong> common programmable processors enabled general-purpose GPU computing.</li>
+        <li><strong>Compute features:</strong> L1/L2 caches, double precision, integer operations, atomics, larger memory, and better programmability expanded HPC use.</li>
+        <li><strong>High-bandwidth and specialized units:</strong> HBM, tensor cores, reduced-precision formats, TMA, and fast interconnects target AI and data-intensive computation.</li>
+      </ol>
+      <p>Specific product names and unit counts age quickly. The stable foundation is the hierarchy, execution model, memory behavior, and toolchain abstraction.</p>
+
+      <details>
+        <summary>Module 1 source map</summary>
+        <ul>
+          <li><a href="../Modules/Module%201/M1V1%20Instructor%20and%20Course%20Introduction%20Handout.pdf">M1V1 course introduction handout</a> and <a href="../Modules/Module%201/Transcripts/M1L1%20Instructor%20and%20Course%20Introduction%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%201/M1V2%20Modern%20Processor%20Paradigms%20Handout.pdf">M1V2 modern processor paradigms</a> and <a href="../Modules/Module%201/Transcripts/M1L2%20Modern%20Processor%20Paradigms%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%201/M1L3%20How%20to%20Write%20Parallel%20Programs%20Handout.pdf">M1L3 parallel programs</a> and <a href="../Modules/Module%201/Transcripts/M1L3%20How%20to%20Write%20Parallel%20Programs.txt">transcript</a></li>
+          <li><a href="../Modules/Module%201/M1L4%20Introduction%20to%20GPU%20Architecture%20Handout.pdf">M1L4 GPU architecture</a> and <a href="../Modules/Module%201/Transcripts/M1L4%20Introduction%20to%20GPU%20Architecture%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%201/M1V5%20History%20Trend%20of%20GPU%20Architectures%20Handout.pdf">M1V5 architecture history</a> and <a href="../Modules/Module%201/Transcripts/M1L5%20History%20Trend%20of%20GPU%20Architechture%20Transcript.txt">transcript</a></li>
+        </ul>
+      </details>
+    </section>
+
+    <section id="module2">
+      <h2>6. Module 2 — parallel programming patterns</h2>
+      <p><strong>Learning target:</strong> recognize concurrency, select a decomposition and pattern, then reason about sharing, scheduling, synchronization, and communication. These CPU/MPI ideas directly explain CUDA.</p>
+
+      <h3>6.1 The four-step workflow</h3>
+      <ol>
+        <li><strong>Discover concurrency:</strong> find independent work and dependencies.</li>
+        <li><strong>Structure the algorithm:</strong> choose tasks/data partitions, communication, and synchronization.</li>
+        <li><strong>Implement:</strong> choose CUDA, OpenMP, MPI, libraries, or a combination.</li>
+        <li><strong>Execute and optimize:</strong> verify correctness first; then profile load balance, overhead, bandwidth, locality, and utilization.</li>
+      </ol>
+
+      <h3>6.2 Five patterns</h3>
+      <p>A <strong>parallel programming pattern</strong> is a reusable organization of work and communication. It is not a particular language feature. The same pattern can be implemented with CPU threads, MPI processes, CUDA kernels, task runtimes, or combinations of them.</p>
+      <p>In <strong>master/worker</strong>, a coordinator maintains or produces tasks and workers take tasks as they become available. This works well when tasks are independent but vary in cost. The shared task queue can become a synchronization bottleneck, so real systems may use multiple queues or batching.</p>
+      <p>In <strong>loop parallelism</strong>, iterations of a loop are distributed among workers. It is safe only when concurrent iterations are independent or when dependencies are handled explicitly. “It is a loop” is not sufficient evidence that it can run in parallel.</p>
+      <p>In <strong>SPMD</strong>, every worker runs the same program but uses its identity to select different data. This is the natural shape of a CUDA SIMT kernel: the kernel is common, while <code>threadIdx</code> and <code>blockIdx</code> distinguish each instance’s work.</p>
+      <p>In <strong>fork/join</strong>, one task forks parallel children and later joins them before dependent work continues. A host launching a CUDA kernel and later synchronizing is conceptually fork/join, although a CUDA launch is asynchronous and the GPU internally schedules blocks.</p>
+      <p>In a <strong>pipeline</strong>, different stages operate on different items at the same time. Once full, a pipeline improves throughput even though one item must still pass through every stage. Graphics rendering and producer/transform/consumer workflows are natural examples.</p>
+      <h4>Pattern recap</h4>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Pattern</th><th>Shape</th><th>Good fit</th><th>CUDA analogy</th></tr></thead>
+        <tbody>
+          <tr><td>Master/worker</td><td>A coordinator feeds tasks to workers, often from a queue</td><td>Independent tasks with irregular arrival or cost</td><td>Persistent-kernel work queues; host dispatch</td></tr>
+          <tr><td>Loop parallelism</td><td>Independent loop iterations run concurrently</td><td>Regular element-wise work</td><td>One thread per iteration</td></tr>
+          <tr><td>SPMD</td><td>All workers run one program on distinct data</td><td>Data-parallel algorithms</td><td>Normal CUDA kernel</td></tr>
+          <tr><td>Fork/join</td><td>Serial work forks parallel tasks and joins before continuing</td><td>Phased parallel computation</td><td>Host launches a grid, synchronizes, then continues</td></tr>
+          <tr><td>Pipeline</td><td>Different stages process different items concurrently</td><td>Streaming data and staged transforms</td><td>Multiple kernels/streams; graphics pipelines</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>6.3 Shared memory versus distributed memory</h3>
+      <p>An <strong>address space</strong> is the set of memory addresses a program context can name. In a shared-memory program, multiple threads can name the same allocation, so one thread can communicate by storing a value that another loads. Correctness then depends on synchronization, because merely sharing an address does not define which access happens first.</p>
+      <p>In a distributed-memory program, each process has its own address space. The same numeric address in two processes normally refers to different storage. To exchange values, processes use explicit communication such as MPI messages. This makes movement visible in the program but requires the programmer to identify what data crosses process boundaries.</p>
+      <div class="grid2">
+        <div class="card">
+          <h4>Shared-memory system</h4>
+          <p>Workers name the same address space. Communication can occur through loads/stores, but races and visibility must be synchronized. OpenMP targets this model.</p>
+        </div>
+        <div class="card">
+          <h4>Distributed-memory system</h4>
+          <p>Each process has a private address space. Data moves through explicit messages. MPI targets this model.</p>
+        </div>
+      </div>
+      <p>CUDA combines both intuitions. Threads in one block cooperate through shared memory and barriers. Separate blocks have private shared-memory allocations and normally communicate through global memory plus separate kernel phases—similar to explicit boundary exchange.</p>
+
+      <h3>6.4 Thread, process, and core</h3>
+      <ul>
+        <li>A <strong>thread</strong> is a software execution context with its own instruction progress and private state. It is not a physical core.</li>
+        <li>A <strong>process</strong> normally owns a private virtual address space. MPI commonly uses processes.</li>
+        <li>A <strong>core/SM</strong> is hardware that executes threads. One core or SM handles many threads over time.</li>
+        <li>A CUDA thread is deliberately lighter-weight than a typical operating-system CPU thread; applications create thousands or millions.</li>
+      </ul>
+
+      <h3>6.5 Race conditions and synchronization tools</h3>
+      <p>A <strong>data race</strong> occurs when concurrent agents access the same location, at least one access is a write, and ordering is not properly synchronized. The result can depend on timing.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tool</th><th>Meaning</th><th>Cost / scope</th></tr></thead>
+        <tbody>
+          <tr><td>Mutex / lock</td><td>Only one CPU thread enters a protected critical section.</td><td>General but can serialize, block, and cause contention.</td></tr>
+          <tr><td>Critical section</td><td>Language/runtime construct that enforces mutual exclusion for a region.</td><td>Broader than one memory operation.</td></tr>
+          <tr><td>Atomic operation</td><td>Indivisible read-modify-write on a memory location, such as <code>atomicAdd</code>.</td><td>Fine-grained; contention still serializes updates.</td></tr>
+          <tr><td>Barrier</td><td>Every participating thread must arrive before any proceeds.</td><td>Orders phases; does not make conflicting writes safe by itself.</td></tr>
+          <tr><td>Reduction</td><td>Combine many private/partial values with an associative operation.</td><td>Often tree-structured to avoid a single hot lock/atomic.</td></tr>
+        </tbody>
+      </table></div>
+      <p>The lost-update example is <code>sum = sum + partial</code>: load, add, and store are separate. Two threads can both load the old value and overwrite each other. An atomic, mutex, or reduction structure fixes it.</p>
+
+      <h3>6.6 OpenMP essentials</h3>
+      <pre><code>#include &lt;omp.h&gt;
+long long sum = 0;
+#pragma omp parallel for reduction(+:sum) schedule(static)
+for (int i = 0; i &lt; n; ++i) {
+    sum += a[i];
+}</code></pre>
+      <p>OpenMP uses compiler directives, runtime routines, and environment variables. <code>OMP_NUM_THREADS</code> or <code>omp_set_num_threads()</code> controls a requested team size. Important constructs include <code>parallel for</code>, <code>reduction</code>, <code>barrier</code>, <code>critical</code>, <code>atomic</code>, <code>sections</code>, <code>single</code>, and <code>ordered</code>.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Schedule</th><th>Assignment</th><th>Trade-off</th></tr></thead>
+        <tbody>
+          <tr><td><code>static</code></td><td>Predetermined chunks</td><td>Low overhead; best when iteration cost is uniform.</td></tr>
+          <tr><td><code>dynamic</code></td><td>Threads request new chunks at runtime</td><td>Better load balance; more scheduling overhead.</td></tr>
+          <tr><td><code>guided</code></td><td>Starts with larger chunks and decreases them</td><td>Balances early low overhead with late load balance.</td></tr>
+          <tr><td><code>runtime</code></td><td>Uses an environment/runtime choice</td><td>Convenient for experiments without recompiling.</td></tr>
+        </tbody>
+      </table></div>
+      <p>See the optional runnable source <a href="examples/cpu_openmp_reduction.cpp">cpu_openmp_reduction.cpp</a>. It requires an OpenMP-capable host compiler; <code>nvcc</code> is not an MPI/OpenMP installation by itself.</p>
+
+      <h3>6.7 MPI essentials and stencil halos</h3>
+      <p>MPI processes communicate by messages. <code>MPI_Send</code>/<code>MPI_Recv</code> are point-to-point operations; <code>MPI_Bcast</code> distributes data from a root to a group. In a decomposed stencil, each process owns an interior region but needs neighbor boundary values. Those extra copied boundary rows/columns are <strong>halos</strong> or <strong>ghost cells</strong>.</p>
+      <pre><code>MPI_Sendrecv(&amp;rightEdge, 1, MPI_INT, rightRank, 0,
+             &amp;leftHalo,  1, MPI_INT, leftRank,  0,
+             MPI_COMM_WORLD, MPI_STATUS_IGNORE);</code></pre>
+      <p>The full minimal example is <a href="examples/mpi_halo_exchange.cpp">mpi_halo_exchange.cpp</a> and requires an MPI distribution. CUDA stencil blocks load halos from global memory into their own shared-memory tiles rather than sending MPI messages inside a GPU.</p>
+
+      <h3>6.8 Recap — three layers to keep separate</h3>
+      <p>You have now met the terms below in context. Use this recap to prevent a common category error: an algorithmic pattern, a CUDA object created by software, and the hardware that executes it are related, but they are not the same kind of thing.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Layer</th><th>Examples</th><th>The key question</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Programming pattern</strong></td><td>SPMD, fork/join, pipeline, master/worker</td><td>How is the problem expressed and divided?</td></tr>
+          <tr><td><strong>CUDA software model</strong></td><td>kernel, thread, block, grid, shared memory</td><td>What does the programmer create and control?</td></tr>
+          <tr><td><strong>GPU hardware</strong></td><td>warp, lane, SM, GPC, L1/L2, execution unit</td><td>How does the machine actually schedule and execute it?</td></tr>
+        </tbody>
+      </table></div>
+      <div class="not-confuse">A CUDA thread is not a scalar hardware core, a block is not an SM, and a grid is not the whole GPU. Software work is mapped onto reusable hardware resources by schedulers; there are normally far more software threads and blocks than physical execution resources.</div>
+
+      <details>
+        <summary>Module 2 source map</summary>
+        <ul>
+          <li><a href="../Modules/Module%202/M2L1%20Parallel%20Programming%20Patterns%20Handout.pdf">M2L1 patterns handout</a> and <a href="../Modules/Module%202/Transcripts/M2L1%20Parallel%20Programming%20Patterns%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%202/M2L2%20Open%20MP%20vs.%20MPI%20Part1%20Handout.pdf">M2L2 OpenMP/MPI Part 1</a> and <a href="../Modules/Module%202/Transcripts/M2L2%20Open%20MP%20vs%20MPI%20Part%201%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%202/M2L3%20Open%20MP%20vs.%20MPI%20Part2%20Handout.pdf">M2L3 OpenMP/MPI Part 2</a> and <a href="../Modules/Module%202/Transcripts/M2L3%20Open%20MP%20vs%20MPI%20Part%202%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%202/M2V4%20Programming%20with%20MPI%20Handout.pdf">M2V4 MPI handout</a> and <a href="../Modules/Module%202/Transcripts/M2L4%20Programming%20with%20MPI%20Transcript.txt">transcript</a></li>
+        </ul>
+      </details>
+    </section>
+
+    <section id="module3">
+      <h2>7. Module 3 — CUDA programming foundations</h2>
+      <p><strong>Learning target:</strong> write and launch kernels, manage GPU memory, calculate indices, synchronize a block, estimate occupancy, and implement a stencil using shared memory.</p>
+
+      <h3>7.1 Anatomy of a CUDA C++ file</h3>
+      <p>An <strong>application programming interface (API)</strong> is a documented set of functions, types, constants, and rules through which one software component requests services from another. In CUDA host code, calls such as <code>cudaMalloc</code> and <code>cudaMemcpy</code> use the CUDA Runtime API to ask the CUDA software stack to allocate or move device data. An API is an interface contract; it is not the hardware and it is not a programming language.</p>
+      <p>A C++ <strong>header</strong> makes declarations available to the compiler. Including a header does not copy a library's implementation into your source and does not install that library. CUDA also adds <strong>function qualifiers</strong>, such as <code>__global__</code>, that tell the CUDA compiler where a function executes and where it may be called.</p>
+      <div class="not-confuse"><code>#include &lt;cuda_runtime.h&gt;</code> exposes declarations for compilation. The CUDA Runtime library supplies their implementation, the NVIDIA driver controls the device, and the GPU executes kernels. Header, library, driver, and hardware are four different layers.</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Syntax/import</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>#include &lt;cuda_runtime.h&gt;</code></td><td>CUDA Runtime types and APIs such as <code>cudaMalloc</code>, <code>cudaMemcpy</code>, and device properties.</td></tr>
+          <tr><td><code>#include &lt;cstdio&gt;</code></td><td>C/C++ formatted output. Device-side <code>printf</code> is useful for tiny debugging runs, not normal performance code.</td></tr>
+          <tr><td><code>#include &lt;cstdlib&gt;</code></td><td>Standard exit status and <code>std::exit</code>, used by the shared error-checking macro.</td></tr>
+          <tr><td><code>#include &lt;vector&gt;</code></td><td>Resizable, contiguous CPU-side array used by the explicit-memory vector-add host code.</td></tr>
+          <tr><td><code>#include &lt;cmath&gt;</code></td><td>Floating-point helpers such as <code>std::fabs</code> for result validation.</td></tr>
+          <tr><td><code>#include "cuda_tile.h"</code></td><td>CUDA Tile C++ declarations in <code>cuda::tiles</code>; needed only by tile kernels and requires CUDA 13.3+, C++20, and <code>-enable-tile</code>.</td></tr>
+          <tr><td><code>#include &lt;omp.h&gt;</code> / <code>&lt;mpi.h&gt;</code></td><td>Optional Module 2 runtime interfaces. They require an OpenMP-capable compiler or MPI installation and are not supplied merely by including CUDA headers.</td></tr>
+          <tr><td><code>__global__ void kernel(...)</code></td><td>Declares a kernel entry point compiled for the GPU and launchable from the host.</td></tr>
+          <tr><td><code>__device__</code></td><td>GPU function or variable callable/accessed from device code.</td></tr>
+          <tr><td><code>__host__</code></td><td>CPU function; default for ordinary C++ functions.</td></tr>
+          <tr><td><code>__shared__</code></td><td>Block-scoped on-chip shared-memory allocation.</td></tr>
+          <tr><td><code>&lt;&lt;&lt;grid, block, sharedBytes, stream&gt;&gt;&gt;</code></td><td>CUDA launch configuration; the last two arguments are optional.</td></tr>
+        </tbody>
+      </table></div>
+      <p>The reusable <a href="examples/cuda_check.cuh">cuda_check.cuh</a> header includes <code>cuda_runtime.h</code>, C stdio/stdlib, a readable helper function, and the <code>CUDA_CHECK</code> macro that adds call text plus file/line information. Section 4 explains the header and macro from first principles. Example-specific headers such as <code>&lt;vector&gt;</code> and <code>&lt;cmath&gt;</code> are included only by programs that need them.</p>
+
+      <h3>7.2 Minimal kernel launch</h3>
+      <pre><code>__global__ void kernel() {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+}
+
+int main() {
+    kernel&lt;&lt;&lt;3, 8&gt;&gt;&gt;();          // 3 blocks × 8 threads = 24 threads
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+}</code></pre>
+      <p>A kernel launch is normally asynchronous with respect to the CPU: control returns before GPU completion. <code>cudaGetLastError()</code> catches immediate launch configuration errors; synchronization or a blocking copy reveals asynchronous execution errors.</p>
+
+      <h3>7.3 Vector addition: the full host/device story</h3>
+      <ol>
+        <li>Host creates and initializes arrays.</li>
+        <li>Host allocates device global memory with <code>cudaMalloc</code>.</li>
+        <li>Host copies inputs with <code>cudaMemcpyHostToDevice</code>.</li>
+        <li>Host computes a ceiling-divided grid and launches the kernel.</li>
+        <li>Each thread computes its global index and, if valid, one output element.</li>
+        <li>Host copies output with <code>cudaMemcpyDeviceToHost</code>, validates, and frees device memory.</li>
+      </ol>
+      <pre><code>__global__ void vectorAdd(const float* a, const float* b, float* c, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i &lt; n) c[i] = a[i] + b[i];
+}
+
+int threads = 256;
+int blocks = (n + threads - 1) / threads; // integer ceiling division
+vectorAdd&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(dA, dB, dC, n);</code></pre>
+      <p>Run the complete explicit-memory version: <a href="examples/02_vector_add_explicit.cu">02_vector_add_explicit.cu</a>. Compare it with <a href="examples/03_vector_add_managed.cu">03_vector_add_managed.cu</a>.</p>
+
+      <h3>7.4 Synchronization scopes</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Operation</th><th>Who waits / what it guarantees</th></tr></thead>
+        <tbody>
+          <tr><td><code>__syncthreads()</code></td><td>Barrier plus relevant memory ordering for all active threads of one block.</td></tr>
+          <tr><td><code>__syncwarp(mask)</code></td><td>Synchronizes participating lanes of a warp; use correct masks.</td></tr>
+          <tr><td>Cluster sync</td><td>Synchronizes blocks of one cluster on supported hardware through Cooperative Groups.</td></tr>
+          <tr><td>Separate kernel launches in one stream</td><td>Later work in the same stream begins after earlier work completes; this creates a grid-wide phase boundary.</td></tr>
+          <tr><td><code>cudaDeviceSynchronize()</code></td><td>CPU thread waits for prior device work; heavy but clear for learning/debugging.</td></tr>
+          <tr><td>Atomic</td><td>Orders one memory update; it is not a barrier for unrelated work.</td></tr>
+        </tbody>
+      </table></div>
+      <p>The course’s <em>Bulk Synchronous Parallel</em> pattern is: independent work → barrier → next phase. Shared-memory algorithms often repeat load → barrier → compute → barrier → reuse/store.</p>
+
+      <h3>7.5 Occupancy</h3>
+      <p><strong>Occupancy</strong> is resident active warps on an SM divided by the maximum active warps supported by that SM. It is constrained by per-SM limits on threads/warps/blocks, registers, shared memory, and architecture allocation granularity.</p>
+      <p>Course hand calculation: an illustrative SM supports 256 threads, 65,536 registers, and 32 KiB shared memory. A block uses 32 threads, 64 registers/thread, and 2 KiB shared memory.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Constraint</th><th>Calculation</th><th>Blocks/SM</th></tr></thead>
+        <tbody>
+          <tr><td>Threads</td><td><code>floor(256 / 32)</code></td><td>8</td></tr>
+          <tr><td>Registers</td><td><code>floor(65536 / (64 × 32))</code></td><td>32</td></tr>
+          <tr><td>Shared memory</td><td><code>floor(32 KiB / 2 KiB)</code></td><td>16</td></tr>
+          <tr><td>Final</td><td>minimum of all constraints and hardware block cap</td><td><strong>8</strong></td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warn"><strong>Occupancy is not performance.</strong> More resident warps can hide latency, but chasing 100% occupancy can increase memory traffic, reduce register reuse, or force an inferior algorithm. “Enough warps to hide the workload’s latency” is the goal. Measure.</div>
+      <p>Inspect compiler register use with <code>nvcc -Xptxas=-v ...</code>. Query predicted active blocks with <code>cudaOccupancyMaxActiveBlocksPerMultiprocessor</code>. NVIDIA’s tools account for allocation granularity that a simple division omits.</p>
+
+      <h3>7.6 Stencil with halo tiles</h3>
+      <p>A stencil computes an output from neighboring inputs. The 4-neighbor course example is:</p>
+      <pre><code>out[y,x] = 0.25 * (in[y,x-1] + in[y,x+1] +
+                    in[y-1,x] + in[y+1,x]);</code></pre>
+      <p>Each block owns an output tile but also needs neighboring input values outside that tile. It cooperatively loads an expanded shared-memory region containing the interior plus a one-element halo, substitutes a boundary policy such as zero padding, synchronizes, computes, and writes the interior outputs.</p>
+      <div class="flow"><span>global input + halo</span><i>→</i><span>shared tile</span><i>→</i><span><code>__syncthreads()</code></span><i>→</i><span>neighbor computation</span><i>→</i><span>global output</span></div>
+      <p>Run the bounds-safe implementation: <a href="examples/07_stencil_2d.cu">07_stencil_2d.cu</a>. Every input element may be reused by several neighboring output threads, so explicit staging can reduce redundant global loads.</p>
+
+      <h3>7.7 Course-slide shorthand to read carefully</h3>
+      <ul>
+        <li>The correct intrinsic is <code>__syncthreads()</code>, with two leading/trailing underscores and “threads” plural.</li>
+        <li>A block’s threads are <em>logically concurrent</em>, but a large block spans multiple warps that are issued over time.</li>
+        <li>An SM can hold multiple blocks simultaneously if resource limits permit; “one block per SM” is only an introductory simplification.</li>
+        <li>Global memory is visible to all device threads, but visibility/order after writes still requires correct synchronization.</li>
+        <li>Constant and texture memory are not merely obsolete graphics artifacts; they remain CUDA features, though they are not central to the first programming exercises.</li>
+      </ul>
+
+      <details>
+        <summary>Module 3 source map</summary>
+        <ul>
+          <li><a href="../Modules/Module%203/M3L1%20Introduction%20of%20CUDA%20Programming%20Handout.pdf">M3L1 CUDA introduction</a> and <a href="../Modules/Module%203/Transcripts/M3L1%20Introduction%20of%20CUDA%20Programming%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%203/M3L2%20Occupancy%20Handout.pdf">M3L2 occupancy</a> and <a href="../Modules/Module%203/Transcripts/M3L2%20Occupancy%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%203/M3L3%20Host%20Code.pdf">M3L3 host code</a> and <a href="../Modules/Module%203/Transcripts/M3L3%20Host%20Code%20Transcript.txt">transcript</a></li>
+          <li><a href="../Modules/Module%203/M3L4%20Stencil%20Operation%20with%20CUDA.pdf">M3L4 stencil</a> and <a href="../Modules/Module%203/Transcripts/M3L4%20Stencil%20Operation%20with%20CUDA%20Transcripts.txt">transcript</a></li>
+        </ul>
+      </details>
+    </section>
+
+    <section id="simt-tile">
+      <h2>8. SIMT, SIMD, and CUDA Tile</h2>
+      <h3>8.1 SIMD versus SIMT</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Property</th><th>SIMD</th><th>SIMT</th></tr></thead>
+        <tbody>
+          <tr><td>Programmer’s abstraction</td><td>An instruction operates on a vector register of fixed width.</td><td>Many scalar-looking threads run one kernel.</td></tr>
+          <tr><td>Control flow</td><td>One explicit control path with masks/predication when needed.</td><td>Each thread has logical control state; divergent warp paths are serialized/masked.</td></tr>
+          <tr><td>Data width</td><td>Exposed vector width, such as 256 or 512 bits.</td><td>Threads are scalar in source; hardware warp width is 32 lanes.</td></tr>
+          <tr><td>Example</td><td>CPU AVX vector add.</td><td>CUDA <code>__global__</code> vector-add kernel.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Both amortize one instruction/control stream across multiple operations, but SIMT preserves a thread-centric programming view and allows per-thread branching. Divergence does not produce wrong results; it can reduce lane utilization.</p>
+
+      <h3>8.2 What CUDA Tile changes</h3>
+      <p>CUDA 13.3 supports a tile model in which the programmer writes one logical program per <strong>block</strong>, operating on compile-time-shaped multidimensional <strong>tiles</strong>. The compiler maps tile operations to threads and can use facilities such as tensor cores or the Tensor Memory Accelerator when appropriate.</p>
+      <p>A tile kernel has one programmer-visible control flow for the whole block. The compiler assigns ordinary scalar expressions, such as calculating a tile-space index or loop bound, to one thread; tile operations, such as adding two tiles, are implemented collectively using the block's threads. The compiler chooses that mapping, so CUDA source does not expose a per-thread branch whose divergence the tile programmer manages.</p>
+      <figure>
+        <img src="assets/nvidia/tile-simt.png" alt="SIMT programmer writes per-thread logic while tile programmer writes per-block operations on tiles and compiler manages threads.">
+        <figcaption>SIMT exposes thread-level mapping; CUDA Tile exposes block-level tile operations. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">§1.2.2.3</a>.</figcaption>
+      </figure>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Question</th><th>SIMT kernel</th><th>Tile kernel</th></tr></thead>
+        <tbody>
+          <tr><td>Entry declaration</td><td><code>__global__</code></td><td><code>__tile_global__</code></td></tr>
+          <tr><td>Programmer thinks in</td><td>Threads, lanes, per-thread indices</td><td>Blocks and multidimensional tiles</td></tr>
+          <tr><td>Threads/block launch argument</td><td>Programmer chooses it</td><td>Compiler chooses internally; launch’s second argument is <code>1</code></td></tr>
+          <tr><td>Control flow</td><td>Per-thread; warp divergence is possible</td><td>One programmer-visible control path per block; no programmer-visible warp divergence</td></tr>
+          <tr><td>Data object</td><td>Scalar/thread values plus explicit arrays/shared memory</td><td>Immutable tile values; operations create new tiles</td></tr>
+          <tr><td>Portability/control</td><td>Fine thread-level control, more manual mapping</td><td>Compiler controls thread mapping, higher-level and architecture-portable</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>8.3 Array, tile, tile space</h3>
+      <ul>
+        <li>An <strong>array</strong> is mutable multidimensional data in device memory with a shape and element data type.</li>
+        <li>A <strong>tile</strong> is an immutable, block-local multidimensional value. It may be held in registers, shared memory, or another compiler-chosen representation.</li>
+        <li>Every tile dimension is a compile-time-known power of two in the current model.</li>
+        <li>Tiles exist only inside tile code and cannot be passed as kernel parameters.</li>
+        <li><strong>Tile space</strong> is the conceptual regular partition of an array into equally shaped regions. A tile-space index selects a region, not one scalar element.</li>
+        <li>A <strong>masked load/store</strong> safely handles a partial edge tile: out-of-bounds load positions can be padded, and out-of-bounds stores are discarded.</li>
+      </ul>
+      <p>Loads create tile values from array regions; stores write tile values back. Gather and scatter operations handle noncontiguous positions. Built-in tile operations include element-wise arithmetic, matrix multiplication, reductions, reshaping, transposition, and type conversion. When an operation permits different input shapes, a smaller tile may be <strong>broadcast</strong>—conceptually expanded—to match the larger shape.</p>
+      <div class="not-confuse">A <strong>block</strong> is a unit of execution. A <strong>tile</strong> is a collection of data values. One block can create and operate on many tiles of different shapes. Tile programming also does not remove warps from the hardware; it makes the compiler responsible for mapping block-level tile operations onto them.</div>
+      <figure>
+        <img src="assets/nvidia/tile-data-movement.png" alt="An array partitioned into tiles; a tile-space index loads a region and handles an edge with zero padding.">
+        <figcaption>Tile-space movement. One block can create and operate on several tiles; block and tile are not synonyms. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">§1.2.2.3.2</a>.</figcaption>
+      </figure>
+
+      <h3>8.4 Side-by-side vector addition</h3>
+      <div class="grid2">
+        <div>
+          <h4>SIMT: per thread</h4>
+          <pre><code>__global__ void add(float* a, float* b,
+                    float* c, int n) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i &lt; n) c[i] = a[i] + b[i];
+}
+
+add&lt;&lt;&lt;ceil_div(n, 256), 256&gt;&gt;&gt;(a,b,c,n);</code></pre>
+        </div>
+        <div>
+          <h4>Tile C++: per block</h4>
+          <pre><code>#include "cuda_tile.h"
+__tile_global__ void add(...) {
+  namespace ct = cuda::tiles;
+  // Create 8-element partition views.
+  int b = ct::bid().x;
+  cv.store_masked(av.load_masked(b)
+                + bv.load_masked(b), b);
+}
+
+add&lt;&lt;&lt;ceil_div(n, 8), 1&gt;&gt;&gt;(a,b,c,n);</code></pre>
+        </div>
+      </div>
+      <p>The verified full source is <a href="examples/08_tile_vector_add.cu">08_tile_vector_add.cu</a>. Compile with:</p>
+      <pre><code>nvcc -std=c++20 -enable-tile -arch=native 08_tile_vector_add.cu -o tile_vector_add.exe
+.&#92;tile_vector_add.exe</code></pre>
+      <div class="callout"><strong>When to choose which?</strong> The choice is made per kernel, so one application may contain both models and both can operate on the same device-memory data. Start with SIMT because it teaches the hardware/software relationship and offers fine control. Consider tile programming for naturally tiled operations—matrix multiply, reductions, scans, transpose, element-wise tensor work—when compiler-managed thread mapping improves productivity. Tile programming complements rather than replaces SIMT.</div>
+    </section>
+
+    <section id="toolchain">
+      <h2>9. CUDA platform, NVCC, PTX, cubins, and caches</h2>
+      <h3>9.1 The software stack</h3>
+      <p>The <strong>CUDA platform</strong> is the complete hardware-and-software ecosystem for computing on NVIDIA GPUs. It includes GPU hardware, the NVIDIA driver, programming interfaces, compilers, libraries, and analysis tools. A CUDA application crosses several of these layers before instructions execute on the GPU.</p>
+      <p>A <strong>device driver</strong> is operating-system software that controls a hardware device on behalf of applications. The <strong>NVIDIA driver</strong> creates and manages GPU execution contexts—driver-maintained state associating resources and work with a device—allocates or maps memory, loads GPU programs, submits work, and reports results and errors. It is required for CUDA and also supports non-CUDA GPU uses such as graphics APIs. It implements the low-level <strong>CUDA Driver API</strong>.</p>
+      <p>The <strong>CUDA Toolkit</strong> is the developer package. It contains compiler tools such as <code>nvcc</code>, CUDA headers, the Runtime library, optimized libraries, debuggers, profilers, and sample-development tools. You need a compatible driver to run CUDA work and the Toolkit to build these examples. They have related but separate versions.</p>
+      <p>The <strong>CUDA Runtime</strong> is a library supplied by the Toolkit together with CUDA C++ language support for common operations. Its <strong>Runtime API</strong> is the higher-level interface used throughout these labs. Calls such as <code>cudaMalloc</code>, <code>cudaMemcpy</code>, stream/event functions, and the <code>&lt;&lt;&lt;...&gt;&gt;&gt;</code> launch mechanism use runtime-managed initialization and context handling. The lower-level <strong>CUDA Driver API</strong> uses names such as <code>cuMemAlloc</code> and <code>cuLaunchKernel</code> and gives explicit control over contexts and loaded modules. The Runtime API is implemented on the Driver API. Applications may use either one or interoperate between them, but a beginner should normally start with the Runtime.</p>
+      <p><code>nvcc</code> is a <strong>compiler driver</strong>: a coordinating program, not one monolithic compiler. It separates CPU and GPU portions of a <code>.cu</code> translation unit, invokes CUDA compilation stages for device code, invokes a supported host C++ compiler for CPU code, and arranges the results into the final executable or library.</p>
+      <div class="not-confuse">The <strong>CUDA platform</strong> is the whole computing ecosystem. The <strong>Toolkit</strong> is the development package. The <strong>Runtime API</strong> and <strong>Driver API</strong> are programming interfaces at different levels. The <strong>driver</strong> is installed system software. <code>nvcc</code> is a build tool. These names are related, not interchangeable.</div>
+      <p>Toolkit, driver, and GPU versions must be compatible; “CUDA 13.3 is installed” alone does not prove that a particular GPU program can run. NVIDIA maintains the authoritative <a href="https://docs.nvidia.com/deploy/cuda-compatibility/index.html">CUDA Compatibility guide</a> for version combinations.</p>
+
+      <h3>9.2 Compute capability and targets</h3>
+      <p>A GPU <strong>architecture</strong> is a hardware design family with a particular instruction set, features, and resource limits. NVIDIA exposes the CUDA-relevant version as <strong>compute capability</strong> <code>X.Y</code>. The number lets software ask whether features such as thread-block clusters exist and tells the compiler what instruction target it may use. It is not a speed rating: a higher number identifies a newer capability level, not a guaranteed amount of performance.</p>
+      <p>A real-machine target is written <code>sm_XY</code>; a virtual PTX target is written <code>compute_XY</code>. Your GPU has compute capability 8.6, so its native target is <code>sm_86</code>.</p>
+      <pre><code>nvcc --list-gpu-arch          # supported virtual targets: compute_XY
+nvcc --list-gpu-code          # supported real targets: sm_XY
+nvcc -arch=native app.cu -o app.exe
+nvcc -arch=sm_86 app.cu -o app.exe</code></pre>
+      <p><code>-arch=native</code> is ideal for local experiments because it emits code for the detected GPU, but the resulting executable may not run on another architecture. Production builds often embed multiple targets.</p>
+
+      <h3>9.3 Compilation pipeline</h3>
+      <div class="definition">
+        <span class="label">Definition — instruction set architecture (ISA)</span>
+        An ISA is the contract between generated machine code and a processor: available instructions, registers, data types, addressing behavior, and related execution rules. A compiler targets an ISA; hardware implements an ISA.
+      </div>
+      <p>An <strong>intermediate representation (IR)</strong> is a compiler-oriented form between source code and final native instructions. PTX serves both as an assembly-like virtual ISA and as an IR for CUDA device code. “Virtual” means PTX describes a stable abstract CUDA machine that a later compiler maps to a particular real GPU; the GPU does not directly execute PTX text.</p>
+      <p>PTX is useful beyond CUDA C++: compilers for other high-level languages or <strong>domain-specific languages</strong>—languages designed for a particular problem area—can emit PTX and then use NVIDIA's offline or just-in-time compilation tools to obtain executable GPU code. PTX itself is versioned as GPU capabilities evolve. A PTX feature target such as <code>compute_80</code> means the virtual instruction set may use features available at compute capability 8.0.</p>
+      <div class="flow"><span>CUDA C++ <code>.cu</code></span><i>→</i><span>host C++ + device IR</span><i>→</i><span>PTX virtual ISA</span><i>→</i><span>cubin / SASS for <code>sm_XY</code></span><i>→</i><span>fatbin inside app/library</span></div>
+      <figure>
+        <img src="assets/nvidia/nvcc-flow.png" alt="NVCC separates host and device code, compiles GPU code to PTX and binary, and embeds it with host code.">
+        <figcaption>High-level <code>nvcc</code> flow. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/nvcc.html">§2.7.2</a>.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>PTX</strong> (Parallel Thread Execution) is NVIDIA’s versioned virtual GPU ISA: a portable assembly-like intermediate representation.</li>
+        <li><strong>SASS</strong> is informal terminology for a real NVIDIA GPU’s native machine instructions and their assembly-like disassembly.</li>
+        <li>A <strong>cubin</strong> is a CUDA binary containing native code for a specific SM target.</li>
+        <li>A <strong>fatbin</strong> is a container that can embed multiple cubins plus PTX inside an executable or library.</li>
+      </ul>
+      <div class="not-confuse">PTX is not the instruction stream fetched and executed by an SM. A driver may translate PTX into native machine code at load time. A cubin contains native device code; a fatbin is a container that may hold several cubins and PTX versions. One PTX instruction also need not become one native instruction.</div>
+      <figure>
+        <img src="assets/nvidia/fatbin.png" alt="Host executable includes a fatbin containing multiple cubins and PTX versions.">
+        <figcaption>A fatbin lets the runtime select a matching cubin or JIT a compatible PTX version. Source: NVIDIA CUDA Programming Guide, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/cuda-platform.html">§1.3.4</a>.</figcaption>
+      </figure>
+      <p>At load time, CUDA selects the best compatible image available for the actual GPU: normally a matching native cubin when present, otherwise compatible PTX that the driver can compile. “Fat” describes the container holding alternatives; it does not describe one larger instruction set.</p>
+
+      <h3>9.4 Binary and PTX compatibility</h3>
+      <ul>
+        <li>A cubin is architecture-specific. Within one major compute-capability family, a cubin can run on a GPU whose minor version is equal to or greater than its target. Thus <code>sm_86</code> code can run on CC 8.6 or 8.9, but not CC 8.0. It cannot cross into a different major family such as CC 9.0.</li>
+        <li>PTX targeted at <code>compute_XY</code> can be JIT-compiled for a device with an equal or higher compute capability when its driver supports that PTX version, providing forward compatibility.</li>
+        <li>Embedding native cubins avoids JIT startup cost for known devices; embedding PTX gives a path to future devices. A fatbin can contain both.</li>
+      </ul>
+      <div class="not-confuse">NVIDIA's cubin compatibility guarantee applies to binaries produced by supported NVIDIA tools. Manually editing or generating native GPU binaries is unsupported and invalidates that compatibility promise.</div>
+
+      <h3>9.5 What “PTX cache” usually means</h3>
+      <div class="callout"><strong>Precise wording.</strong> PTX itself is an intermediate representation, not a hardware cache. When a driver JIT-compiles embedded PTX, application loading can take longer. The driver stores the generated native binary in the <strong>compute cache</strong> so subsequent application runs need not repeat compilation. Driver upgrades invalidate that cache so code can be regenerated with the newer JIT compiler and its optimizations.</div>
+      <p>Separate from the compute cache, GPU hardware has instruction caches, per-SM L1/data caches, a device-wide L2 cache, and a constant cache. Keep these concepts distinct.</p>
+      <p>CUDA may load and JIT kernels lazily rather than compiling every embedded kernel immediately. Advanced users can control portions of this behavior with CUDA loading and JIT environment variables. <strong>NVRTC</strong> is a separate runtime-compilation library that can compile CUDA C++ source to PTX while an application is running; it is not the driver’s PTX-to-native JIT compiler.</p>
+
+      <h3>9.6 Inspect the compilation products</h3>
+      <pre><code>nvcc -std=c++17 -arch=sm_86 -ptx 02_vector_add_explicit.cu -o vector_add.ptx
+nvcc -std=c++17 -arch=sm_86 -cubin 02_vector_add_explicit.cu -o vector_add.cubin
+cuobjdump --dump-ptx 02_vector_add_explicit.exe
+cuobjdump --dump-sass 02_vector_add_explicit.exe
+nvdisasm vector_add.cubin</code></pre>
+      <p>Read PTX to understand the compiler’s virtual instruction view, but do not assume one PTX instruction maps one-to-one to one hardware instruction. Use SASS/disassembly when the real generated machine code matters.</p>
+    </section>
+
+    <section id="performance">
+      <h2>10. A beginner’s performance reasoning checklist</h2>
+      <p>Correctness first, then profiling. GPU performance is usually a balance among parallel work, memory traffic, control efficiency, and resource residency.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Question</th><th>Good sign</th><th>Common problem</th></tr></thead>
+        <tbody>
+          <tr><td>Is there enough independent work?</td><td>Many more blocks than SMs</td><td>Tiny grids leave SMs idle</td></tr>
+          <tr><td>Are global accesses coalesced?</td><td>Adjacent lanes access adjacent aligned elements</td><td>Large strides/scatters cause extra transactions</td></tr>
+          <tr><td>Is data reused?</td><td>Registers/cache/shared memory serve repeated accesses</td><td>Same values repeatedly fetched from DRAM</td></tr>
+          <tr><td>Do warp lanes follow similar control?</td><td>Most lanes active on each issued instruction</td><td>Branches divide one warp into serial paths</td></tr>
+          <tr><td>Are shared-memory banks used well?</td><td>Distinct banks or broadcast</td><td>Many addresses collide in one bank</td></tr>
+          <tr><td>Is occupancy sufficient?</td><td>Enough resident warps hide stalls</td><td>Registers/shared memory/block size restrict residency</td></tr>
+          <tr><td>Is transfer/launch overhead amortized?</td><td>Useful work dominates setup</td><td>Many tiny kernels or frequent CPU↔GPU copies</td></tr>
+          <tr><td>Is the workload balanced?</td><td>Threads/blocks have similar useful work</td><td>Long tails, irregular work, or mostly invalid edge threads</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Latency versus throughput</h3>
+      <p><strong>Latency</strong> is time for one operation to finish. <strong>Throughput</strong> is completed work per unit time. GPUs tolerate long individual memory latency by keeping other warps ready. This works only if enough independent work is resident and the memory system is not already saturated.</p>
+
+      <h3>Arithmetic intensity</h3>
+      <p>Arithmetic intensity is useful arithmetic operations per byte moved from a limiting memory level. Vector addition is low intensity: it reads two values, writes one, and performs one add. A tiled matrix multiply reuses input values many times and has higher intensity. More ALUs cannot fix a kernel fundamentally limited by DRAM bandwidth.</p>
+
+      <h3>Divergence example</h3>
+      <pre><code>if ((threadIdx.x &amp; 1) == 0) pathA();  // even lanes
+else                              pathB();  // odd lanes</code></pre>
+      <p>One warp must cover both paths with different active masks. Branches aligned with warp boundaries—such as warp 0 taking A and warp 1 taking B—do not cause within-warp divergence even though different warps take different code.</p>
+
+      <h3>Occupancy trade-off example</h3>
+      <p>Increasing block size may expose more threads, but it also increases per-block register and shared-memory demand. Limiting registers with <code>-maxrregcount</code> can increase occupancy yet cause register spills to local memory. The only valid conclusion comes from profiling the whole effect.</p>
+
+      <h3>Tools and a disciplined loop</h3>
+      <ol>
+        <li>Build release-like device code with <code>-lineinfo</code>; avoid <code>-G</code for performance measurements.</li>
+        <li>Validate with CPU reference results and <code>compute-sanitizer</code>.</li>
+        <li>Use Nsight Systems to find CPU/GPU overlap, transfers, launches, and gaps.</li>
+        <li>Use Nsight Compute to inspect kernel memory throughput, occupancy, warp stalls, divergence, and instruction behavior.</li>
+        <li>Change one hypothesis-driven factor and remeasure.</li>
+      </ol>
+      <pre><code>nvcc -O3 -lineinfo -arch=native app.cu -o app.exe
+compute-sanitizer --tool memcheck .&#92;app.exe
+compute-sanitizer --tool racecheck .&#92;app.exe
+nvcc -Xptxas=-v -arch=native app.cu -o app.exe</code></pre>
+    </section>
+
+    <section id="labs">
+      <h2>11. Hands-on lab sequence</h2>
+      <p>All CUDA labs are in <a href="examples/">GPU_Study_Guide/examples</a>. The runner initializes Visual Studio’s C++ environment automatically because Windows <code>nvcc</code> delegates host compilation to <code>cl.exe</code>.</p>
+      <h3>Run everything</h3>
+      <pre><code>cd GPU_Study_Guide&#92;examples
+nvcc --version
+nvidia-smi
+Set-ExecutionPolicy -Scope Process Bypass
+.&#92;build_and_run.ps1</code></pre>
+      <p>To build one ordinary SIMT lab manually from a Visual Studio x64 developer shell:</p>
+      <pre><code>nvcc -std=c++17 -arch=native -lineinfo 02_vector_add_explicit.cu -o vector_add.exe
+.&#92;vector_add.exe
+compute-sanitizer --tool memcheck .&#92;vector_add.exe</code></pre>
+
+      <div class="lab">
+        <h3>Lab 0 — interrogate the device</h3>
+        <p><a href="examples/00_device_info.cu">00_device_info.cu</a></p>
+        <ul class="checklist">
+          <li>Connect compute capability to <code>sm_86</code>.</li>
+          <li>Record SM count, warp size, thread limits, registers, shared memory, and L2.</li>
+          <li>Distinguish unified addressing, mapped host memory, managed memory, concurrent managed access, and pageable-memory access from the reported capability flags.</li>
+          <li>Confirm cluster launch support is false on CC 8.6.</li>
+        </ul>
+        <p><strong>Observed:</strong> 30 SMs, warp size 32, maximum 1024 threads/block, 1536 resident threads/SM, 65,536 registers/SM, 48 KiB shared memory/block, and 3 MiB L2. This Windows/RTX 3060 setup reports unified addressing, mapped host memory, and managed memory support, but not concurrent managed access or general pageable-memory access.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 1 — see hierarchy and nondeterministic ordering</h3>
+        <p><a href="examples/01_hello_hierarchy.cu">01_hello_hierarchy.cu</a></p>
+        <ol>
+          <li>Before running, list the eight expected global IDs for <code>&lt;&lt;&lt;2,4&gt;&gt;&gt;</code>.</li>
+          <li>Run several times. IDs remain correct; print order may change.</li>
+          <li>Change to <code>&lt;&lt;&lt;2,40&gt;&gt;&gt;</code>. Predict two warps per block and lane IDs before running.</li>
+        </ol>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 2 — vector add with explicit memory</h3>
+        <p><a href="examples/02_vector_add_explicit.cu">02_vector_add_explicit.cu</a></p>
+        <ol>
+          <li>Hand-calculate <code>ceil(17/8) = 3</code> blocks and identify the seven invalid tail threads.</li>
+          <li>Comment out <code>if (i &lt; n)</code>, run Compute Sanitizer, and observe the out-of-bounds failure; restore it immediately.</li>
+          <li>Change values and validation so an error is visible rather than silently accepted.</li>
+        </ol>
+        <p><strong>Observed:</strong> <code>N=17, blocks=3, threads/block=8, result=PASS</code>.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 3 — unified memory</h3>
+        <p><a href="examples/03_vector_add_managed.cu">03_vector_add_managed.cu</a></p>
+        <ol>
+          <li>Identify which explicit copies disappeared.</li>
+          <li>Explain why <code>cudaDeviceSynchronize()</code> is still required before the CPU reads <code>c</code>.</li>
+          <li>Do not infer that unified memory is automatically faster; it primarily simplifies addressing and data management.</li>
+        </ol>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 4 — warp divergence and masks</h3>
+        <p><a href="examples/04_warp_divergence.cu">04_warp_divergence.cu</a></p>
+        <p>Lanes 0–15 print active mask <code>0x0000ffff</code>; lanes 16–31 print <code>0xffff0000</code>. The order of paths can vary. Then change the condition to <code>threadIdx.x &lt; 32</code> and launch 64 threads: the two warps take different paths, but neither warp diverges internally.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 5 — shared memory and a barrier</h3>
+        <p><a href="examples/05_shared_reverse.cu">05_shared_reverse.cu</a></p>
+        <ol>
+          <li>Each thread loads one input into shared memory.</li>
+          <li>The barrier guarantees all eight values exist before any thread reads another thread’s value.</li>
+          <li>Output is <code>7 6 5 4 3 2 1 0</code>.</li>
+        </ol>
+        <p>Remove the barrier only as a thought experiment: the code gains a race because a thread may read before its partner writes.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 6 — tree reduction plus one atomic per block</h3>
+        <p><a href="examples/06_block_reduction.cu">06_block_reduction.cu</a></p>
+        <p>Twenty values use three eight-thread blocks. Each block reduces eight shared-memory slots in strides 4 → 2 → 1. Only thread 0 atomically adds the block result, so global atomic traffic is three updates rather than twenty. Observed result: 210.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 7 — 2D stencil with halo</h3>
+        <p><a href="examples/07_stencil_2d.cu">07_stencil_2d.cu</a></p>
+        <ol>
+          <li>Draw one 4×4 output block and its 6×6 shared tile including halo.</li>
+          <li>Trace how 16 threads cooperatively load 36 positions using a loop.</li>
+          <li>Verify a corner manually: missing north/west neighbors contribute zero.</li>
+          <li>Replace zero padding with clamp-to-edge and predict changed boundary output.</li>
+        </ol>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 8 — CUDA Tile C++</h3>
+        <p><a href="examples/08_tile_vector_add.cu">08_tile_vector_add.cu</a></p>
+        <p>The block index selects an eight-element tile; masked operations handle the 17th-element tail. Unlike SIMT, the launch second argument is <code>1</code>. Required build options are C++20 plus <code>-enable-tile</code>. Observed result: <code>CUDA Tile vector add: PASS</code>.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 9 — cluster capability</h3>
+        <p><a href="examples/09_cluster_support.cu">09_cluster_support.cu</a></p>
+        <p>This lab makes hardware eligibility explicit instead of letting a cluster launch fail mysteriously. On this machine it reports CC 8.6 and “NOT SUPPORTED.” Study clusters now; run a DSM/cooperative-groups cluster lab later on CC 9.0+ hardware.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 10 — mapped host memory over the interconnect</h3>
+        <p><a href="examples/10_mapped_host_memory.cu">10_mapped_host_memory.cu</a></p>
+        <ol>
+          <li>The CPU initializes 17 floats in pinned host memory returned by <code>cudaHostAlloc</code>.</li>
+          <li><code>cudaHostGetDevicePointer</code> obtains the pointer view passed to the kernel; no device-DRAM array and no explicit copy are created.</li>
+          <li>The kernel multiplies each value by three through the mapping, then synchronization makes it safe for the CPU to validate the same allocation.</li>
+          <li>Compare its simplicity with Lab 2, but do not infer speed from this tiny run. Use large repeated measurements to compare remote mapped access with copying once and reusing GPU-local data.</li>
+        </ol>
+        <p><strong>Observed:</strong> the RTX 3060 reports mapped-host-memory support and the program prints <code>Mapped host-memory scale: PASS</code>.</p>
+      </div>
+
+      <div class="lab">
+        <h3>Lab 11 — the self-contained first memory program</h3>
+        <p><a href="examples/11_add_one_walkthrough.cu">11_add_one_walkthrough.cu</a></p>
+        <p>This is the exact four-value program explained line by line in Section 4. It deliberately avoids <code>cuda_check.cuh</code>, defines its own readable <code>requireCuda</code> function, and prints both <code>11 21 31 41</code> and a PASS/FAIL result.</p>
+        <ol>
+          <li>Before running, draw separate boxes for <code>hValues</code> in CPU memory and the allocation addressed by <code>dValues</code> in GPU memory.</li>
+          <li>Trace which box contains valid values after each allocation, copy, launch, synchronization, and return copy.</li>
+          <li>Change <code>N</code> to 5 while keeping four threads per block. The program now needs ceiling division and two blocks; use Lab 2 when ready for that extension.</li>
+        </ol>
+      </div>
+
+      <h3>Optional Module 2 companions</h3>
+      <ul>
+        <li><a href="examples/cpu_openmp_reduction.cpp">OpenMP reduction</a>: compile with an OpenMP-capable C++ compiler and experiment with <code>OMP_NUM_THREADS</code> and schedules.</li>
+        <li><a href="examples/mpi_halo_exchange.cpp">MPI halo exchange</a>: compile with an MPI implementation and run with two or more ranks.</li>
+      </ul>
+
+      <h3>Debugging checklist</h3>
+      <ol>
+        <li>Check every Runtime API return with <code>CUDA_CHECK</code>.</li>
+        <li>Check launch setup with <code>cudaGetLastError()</code>.</li>
+        <li>Synchronize during debugging to surface asynchronous errors near their cause.</li>
+        <li>Use a tiny input and print indices sparingly.</li>
+        <li>Compare against a simple CPU reference.</li>
+        <li>Run memcheck; run racecheck for shared-memory hazards.</li>
+        <li>Only then profile performance.</li>
+      </ol>
+    </section>
+
+    <section id="glossary">
+      <h2>12. Compact glossary</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Accelerator</td><td>A specialized processor used alongside a host CPU for selected workloads.</td></tr>
+          <tr><td>ALU / functional unit</td><td>Hardware that performs an operation. An SM contains several kinds and many lanes.</td></tr>
+          <tr><td>API</td><td>Application Programming Interface: documented functions, types, constants, and rules through which software requests a service.</td></tr>
+          <tr><td>Arithmetic intensity</td><td>Useful arithmetic work per byte transferred from a specified memory level.</td></tr>
+          <tr><td>Atomic</td><td>An indivisible memory operation, commonly read-modify-write, with defined scope/order semantics.</td></tr>
+          <tr><td>Barrier</td><td>A point no participating worker may pass until all required participants arrive.</td></tr>
+          <tr><td>Block / CTA</td><td>A programmer-defined group of CUDA threads assigned to one SM; the normal shared-memory and barrier scope.</td></tr>
+          <tr><td>Bounds check</td><td>A condition preventing extra grid threads from accessing beyond an array.</td></tr>
+          <tr><td>BSP</td><td>Bulk Synchronous Parallel: independent computation phases separated by barriers/communication.</td></tr>
+          <tr><td>Cache</td><td>Hardware-managed storage retaining recently/frequently used data closer to execution.</td></tr>
+          <tr><td>Cache hit / miss</td><td>A hit finds the requested cache line in the cache; a miss must obtain it from a farther memory level.</td></tr>
+          <tr><td>Cache line</td><td>Fixed-size aligned unit moved and tracked by a cache; requesting one address commonly brings nearby bytes with it.</td></tr>
+          <tr><td>Coalescing</td><td>Combining warp memory requests into a small number of aligned memory transactions.</td></tr>
+          <tr><td>Coherence</td><td>Rules and mechanisms that maintain a defined relationship among copies of memory held in processor caches; it does not replace synchronization.</td></tr>
+          <tr><td>Compute cache</td><td>Driver-managed cache of native binaries produced by JIT-compiling PTX.</td></tr>
+          <tr><td>Compute capability</td><td>NVIDIA GPU feature/hardware version <code>X.Y</code>, mapped to targets such as <code>sm_86</code>.</td></tr>
+          <tr><td>Compiler</td><td>Software that translates source code into a lower-level representation or machine code while checking language rules and applying transformations.</td></tr>
+          <tr><td>Constant memory</td><td>Read-only device address space with a per-SM constant cache, efficient for uniform warp reads.</td></tr>
+          <tr><td>Control divergence</td><td>Threads of one warp follow different control paths, requiring masked execution of the paths.</td></tr>
+          <tr><td>Core</td><td>Ambiguous GPU marketing term. Prefer SM for a processor-like unit and lane/ALU for scalar execution hardware.</td></tr>
+          <tr><td>Cubin</td><td>Native CUDA binary for a particular SM architecture.</td></tr>
+          <tr><td>CUDA</td><td>NVIDIA’s heterogeneous GPU computing platform, programming models, APIs, toolchain, and libraries.</td></tr>
+          <tr><td>CUDA Runtime API</td><td>High-level host API and launch support layered over the Driver API.</td></tr>
+          <tr><td>Data decomposition</td><td>Divide data among workers that perform similar work.</td></tr>
+          <tr><td>Data race</td><td>Unsynchronized conflicting access to the same location, including at least one write.</td></tr>
+          <tr><td>Device</td><td>In CUDA terminology, the GPU and its directly associated resources/memory.</td></tr>
+          <tr><td>Distributed memory</td><td>Workers/processes have private address spaces and communicate explicitly.</td></tr>
+          <tr><td>Distributed shared memory (DSM)</td><td>Cluster-scoped access to the shared-memory allocations of blocks in one thread-block cluster.</td></tr>
+          <tr><td>DMA</td><td>Direct Memory Access: hardware transfer engines move data without making the CPU load and store every value.</td></tr>
+          <tr><td>DRAM / global memory</td><td>Large GPU-attached memory accessible device-wide; high bandwidth but higher latency than on-chip storage.</td></tr>
+          <tr><td>Driver / Driver API</td><td>System software that controls the GPU; its low-level CUDA interface provides explicit contexts, modules, memory, and launches.</td></tr>
+          <tr><td>Fatbin</td><td>Container of multiple cubins and/or PTX images embedded in a program or library.</td></tr>
+          <tr><td>Fork/join</td><td>Pattern that creates parallel work and waits for it before continuing serial work.</td></tr>
+          <tr><td>GPC</td><td>Graphics Processing Cluster, a physical group of SMs; a block cluster stays within one GPC.</td></tr>
+          <tr><td>Grid</td><td>All blocks created by one kernel launch.</td></tr>
+          <tr><td>Grid-stride loop</td><td>A loop where each thread processes indices separated by total grid thread count, supporting arbitrary N with a fixed grid.</td></tr>
+          <tr><td>Halo / ghost cells</td><td>Neighbor values copied around a decomposed region so a stencil can compute its boundary.</td></tr>
+          <tr><td>HBM</td><td>High Bandwidth Memory: stacked DRAM technology used by some accelerators for very high bandwidth.</td></tr>
+          <tr><td>Heterogeneous system</td><td>A system containing unlike processors, here CPU host plus GPU device.</td></tr>
+          <tr><td>Host</td><td>CPU and host code/memory from which a CUDA application starts and launches GPU work.</td></tr>
+          <tr><td>ILP</td><td>Instruction-level parallelism among independent instructions, often within one thread.</td></tr>
+          <tr><td>Intermediate representation (IR)</td><td>Compiler-oriented program form between source code and final native machine instructions.</td></tr>
+          <tr><td>Interconnect</td><td>Physical path carrying commands and data among processors or memory systems, such as PCIe or NVLink.</td></tr>
+          <tr><td>ISA</td><td>Instruction set architecture: the software-visible contract of instructions, registers, data types, and machine behavior implemented by a processor.</td></tr>
+          <tr><td>JIT</td><td>Just-in-time compilation, such as the driver compiling embedded PTX to native code at load/runtime.</td></tr>
+          <tr><td>Kernel</td><td>A GPU entry function launched over a grid; CUDA C++ marks a SIMT kernel <code>__global__</code>.</td></tr>
+          <tr><td>Lane</td><td>One position 0–31 in a CUDA warp; active masks decide which lanes act on an instruction.</td></tr>
+          <tr><td>Latency hiding</td><td>Making progress on ready warps while other warps wait, rather than reducing the waiting operation’s latency.</td></tr>
+          <tr><td>Local memory</td><td>Thread-private address space commonly backed by cached global memory; often holds spills or large local arrays.</td></tr>
+          <tr><td>Mapped host memory</td><td>Pinned CPU memory given a device-visible mapping so a supported GPU can access it across an interconnect.</td></tr>
+          <tr><td>Memory bandwidth</td><td>Amount of data transferred per unit time.</td></tr>
+          <tr><td>Memory page</td><td>Fixed-size region used by virtual-memory systems as a unit of mapping, protection, and sometimes migration.</td></tr>
+          <tr><td>Memory scope</td><td>The set of threads/agents for which an operation’s ordering or visibility applies.</td></tr>
+          <tr><td>MPI</td><td>Message Passing Interface standard for distributed-memory process communication.</td></tr>
+          <tr><td>Mutex</td><td>Mutual-exclusion lock allowing one thread at a time into a critical section.</td></tr>
+          <tr><td>NVLink / PCIe</td><td>Interconnect technologies that may connect CPU and GPU or multiple GPUs; the link alone does not guarantee shared addressability or cache coherence.</td></tr>
+          <tr><td>NVRTC</td><td>CUDA runtime-compilation library that turns CUDA C++ source into PTX while an application is running.</td></tr>
+          <tr><td>Occupancy</td><td>Resident active warps per SM divided by the architecture’s maximum active warps per SM.</td></tr>
+          <tr><td>OpenMP</td><td>Directive/runtime standard for shared-memory parallel programming, often on CPUs.</td></tr>
+          <tr><td>Pageable host memory</td><td>Ordinary CPU allocation whose physical pages the operating system may relocate or page out.</td></tr>
+          <tr><td>Peer access</td><td>CUDA facility allowing one GPU to access another GPU's memory when the devices, connection, and software support it.</td></tr>
+          <tr><td>Pinned / page-locked memory</td><td>Host memory kept at stable physical pages for efficient device transfers and optional device mapping.</td></tr>
+          <tr><td>PTX</td><td>Parallel Thread Execution, NVIDIA’s versioned virtual GPU instruction set / intermediate representation.</td></tr>
+          <tr><td>Reduction</td><td>Combine many values into fewer values using an associative operation such as sum, min, or max.</td></tr>
+          <tr><td>Register</td><td>Fast compiler-managed storage allocated per logical thread from an SM register file.</td></tr>
+          <tr><td>Scoreboard</td><td>Hardware structure tracking dependencies and whether warp operands/resources are ready.</td></tr>
+          <tr><td>Shared memory</td><td>Explicit on-chip scratchpad shared by threads of a block; cluster DSM can extend the scope.</td></tr>
+          <tr><td>Shared-memory bank conflict</td><td>Multiple warp lanes request different addresses in one bank, forcing serialized service.</td></tr>
+          <tr><td>SIMD</td><td>Single Instruction Multiple Data: one instruction operates on an explicit fixed-width vector.</td></tr>
+          <tr><td>SIMT</td><td>Single Instruction Multiple Threads: scalar-looking threads execute in warp groups with masks.</td></tr>
+          <tr><td>SM</td><td>Streaming Multiprocessor, the main GPU execution engine that schedules warps and hosts blocks.</td></tr>
+          <tr><td>SPMD</td><td>Single Program Multiple Data: many workers run the same program on different data.</td></tr>
+          <tr><td>Stencil</td><td>Computation in which each output uses a fixed neighborhood of input elements.</td></tr>
+          <tr><td>Stream</td><td>An ordered queue of CUDA operations; different streams may enable overlap when dependencies and hardware allow.</td></tr>
+          <tr><td>Task decomposition</td><td>Divide different operations among workers.</td></tr>
+          <tr><td>Tensor core</td><td>Specialized GPU functional unit for matrix multiply-accumulate and related operations.</td></tr>
+          <tr><td>Thread</td><td>One logical instance of a SIMT kernel with its own indices and private state.</td></tr>
+          <tr><td>Thread-block cluster</td><td>Optional CC 9.0+ group of co-scheduled blocks within one GPC.</td></tr>
+          <tr><td>Throughput</td><td>Amount of completed work per unit time.</td></tr>
+          <tr><td>Tile</td><td>Compile-time-shaped, immutable, block-local multidimensional value in CUDA Tile code.</td></tr>
+          <tr><td>Tile space</td><td>Conceptual regular partition of a global array into tile-sized regions addressed by tile indices.</td></tr>
+          <tr><td>TMA</td><td>Tensor Memory Accelerator, hardware supporting efficient multidimensional asynchronous data movement on supported GPUs.</td></tr>
+          <tr><td>Unified memory</td><td>CUDA-managed allocations accessible from CPU and GPU, with access/migration handled by runtime/hardware.</td></tr>
+          <tr><td>UVA</td><td>Unified Virtual Addressing: coordinated CPU and GPU virtual-address ranges; it identifies address ownership but does not make all memory universally accessible.</td></tr>
+          <tr><td>Virtual address</td><td>Address used by program code and translated by hardware/system software to a physical storage location.</td></tr>
+          <tr><td>Warp</td><td>Hardware SIMT group of 32 CUDA threads from one block.</td></tr>
+          <tr><td>Warp divergence</td><td>Different lanes of one warp take different branches; paths are covered with different active masks.</td></tr>
+          <tr><td>Warp scheduler</td><td>SM hardware that selects ready warps and issues their instructions.</td></tr>
+          <tr><td>Wavefront</td><td>AMD’s analogous hardware thread group; not necessarily the same size as an NVIDIA warp.</td></tr>
+          <tr><td>Zero-copy</td><td>GPU access to mapped host memory without an explicit staging copy; accesses still generate interconnect traffic.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="sources">
+      <h2>13. Sources, attribution, and scope</h2>
+      <h3>Primary sources</h3>
+      <ul>
+        <li><strong>Georgia Tech course materials:</strong> all handouts and transcripts in local <a href="../Modules/">Modules 1–3</a>. The source map in each module section links every file used.</li>
+        <li><strong>NVIDIA CUDA Programming Guide, Part 1: Introduction to CUDA</strong> — <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/introduction.html">Introduction</a>, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">Programming Model</a>, and <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/cuda-platform.html">CUDA Platform</a>. Official page metadata reported “last update May 27, 2026”; retrieved August 28, 2026. The explanations and terminology were cross-checked against saved offline copies of all three pages.</li>
+        <li><strong>NVIDIA programming extensions used for runnable labs:</strong> <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/intro-to-cuda-cpp.html">Intro to CUDA C++</a>, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html">Writing SIMT Kernels</a>, <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-tile-kernels.html">Writing Tile Kernels</a>, and <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/nvcc.html">NVCC</a>.</li>
+      </ul>
+      <h3>Image attribution</h3>
+      <p>Figures under <code>assets/nvidia/</code> are local copies of diagrams from the NVIDIA CUDA Programming Guide pages linked in their captions and are included for study with attribution. Course-slide screenshots were used only for visual review while producing these notes; the guide links the original handout PDFs rather than republishing slide images.</p>
+      <h3>Scope notes</h3>
+      <ul>
+        <li>Hardware diagrams are conceptual. Exact SM/GPC layouts, unit counts, cache sizes, issue rules, and latencies vary by GPU architecture.</li>
+        <li>CUDA Tile C++ details reflect Toolkit 13.3 and may evolve more quickly than the established SIMT model.</li>
+        <li>Examples favor clarity, bounds safety, and visible results over peak performance.</li>
+        <li>GPU results were verified on the detected RTX 3060 Laptop GPU. OpenMP/MPI examples were not executed because no OpenMP/MPI compiler was present in the initial shell.</li>
+      </ul>
+      <div class="callout"><strong>Recommended next step.</strong> Work through Labs 0–7 before optimizing. After that, study streams/events, cooperative groups, memory-order scopes, and profiling in the later NVIDIA guide chapters.</div>
+    </section>
+
+    <footer>
+      Built for the local CS7295 workspace. Use the navigation to study online, or print to PDF with the browser’s print command.
+    </footer>
+  </article>
+</main>
+<script>
+  document.querySelectorAll('pre').forEach(function(pre) {
+    var button = document.createElement('button');
+    button.className = 'copy';
+    button.type = 'button';
+    button.textContent = 'Copy';
+    button.addEventListener('click', function() {
+      navigator.clipboard.writeText(pre.innerText.replace(/^Copy\s*/, '')).then(function() {
+        button.textContent = 'Copied';
+        setTimeout(function() { button.textContent = 'Copy'; }, 1200);
+      });
+    });
+    pre.appendChild(button);
+  });
+  var links = Array.from(document.querySelectorAll('nav a'));
+  var targets = links.map(function(a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        links.forEach(function(a) { a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id); });
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  targets.forEach(function(target) { observer.observe(target); });
+</script>
+</body>
+</html>
