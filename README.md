@@ -29,6 +29,41 @@ latest version of the **Chirpy** theme and the [CD][CD] workflow to here, so tha
 
 Check out the [theme's docs](https://github.com/cotes2020/jekyll-theme-chirpy/wiki).
 
+### Local development with VS Code
+
+Open this repository with Docker Desktop running and use **Dev Containers: Reopen in Container**.
+On Windows, enable Docker Desktop's WSL integration for Ubuntu if VS Code mounts its WSLg/Wayland socket.
+
+The container's `onCreateCommand` makes `/usr/local/bundle` writable by the development user before
+the image's built-in `postCreateCommand` installs the gems. After changing the container configuration,
+run **Dev Containers: Rebuild and Reopen in Container**.
+
+If an existing container reports `Bundler::PermissionError`, run the following in its terminal, then rebuild
+to complete all setup commands:
+
+```sh
+sudo chown -R "$(id -u):$(id -g)" /usr/local/bundle
+bundle install
+```
+
+Do not run `sudo bundle install`; it can leave newly installed gems owned by root.
+
+Start the development server with the **Run Jekyll Server** task or:
+
+```sh
+bash tools/run.sh
+```
+
+The helper enables LiveReload and uses polling inside Docker, including cgroup v2 containers.
+Polling is needed for edits on Windows bind mounts, which may not produce Linux filesystem events.
+For a direct Jekyll command, use `bundle exec jekyll serve --livereload --force_polling`.
+The `-o` flag only opens a browser; it does not enable change detection.
+
+Open `http://localhost:4000` and ensure both **4000** (site) and **35729** (LiveReload) are forwarded
+in VS Code's Ports view. The container configuration requests these exact local ports because
+the injected LiveReload client connects to port 35729. Restart a server that was already running
+without polling; configuration changes do not update an existing Jekyll process.
+
 ## Contributing
 
 This repository is automatically updated with new releases from the theme repository. If you encounter any issues or want to contribute to its improvement, please visit the [theme repository][chirpy] to provide feedback.

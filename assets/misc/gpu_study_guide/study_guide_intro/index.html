@@ -1,133 +1,453 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Beginner-first notes for GPU hardware, CUDA software, OMSCS GPU Modules 1-3, and NVIDIA CUDA Programming Guide Part 1.">
-  <title>GPU Hardware & CUDA Software — Foundations and Labs</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #f6f7f2; --paper: #ffffff; --ink: #152017; --muted: #536158;
-      --line: #d9dfd5; --green: #4c8c20; --green2: #76b900; --pale: #eef7e8;
-      --blue: #0d6371; --bluepale: #e9f6f7; --amber: #9b5d00; --amberpale: #fff5df;
-      --red: #9c2f2f; --code: #101713; --codeink: #e8f2ea;
-      --sidebar: 17rem; --max: 72rem;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.62 system-ui,-apple-system,"Segoe UI",sans-serif; }
-    a { color: var(--blue); text-decoration-thickness: .08em; text-underline-offset: .15em; }
-    a:hover { color: var(--green); }
-    nav {
-      position: fixed; inset: 0 auto 0 0; width: var(--sidebar); overflow: auto;
-      padding: 1.25rem 1rem 3rem; background: #142015; color: #eaf3e7;
-      border-right: 4px solid var(--green2);
-    }
-    nav .brand { font-weight: 800; font-size: 1.1rem; line-height: 1.25; margin-bottom: .35rem; }
-    nav .sub { color: #aebcab; font-size: .78rem; margin-bottom: 1rem; }
-    nav a { display: block; color: #dce9d8; text-decoration: none; padding: .28rem .5rem; border-radius: .35rem; font-size: .87rem; }
-    nav a:hover, nav a.active { color: #fff; background: #2b422d; }
-    nav .group { margin-top: .75rem; color: #83c956; padding-left: .5rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
-    main { margin-left: var(--sidebar); padding: 0 2rem 5rem; }
-    article { max-width: var(--max); margin: 0 auto; }
-    .hero {
-      margin: 0 -2rem 2rem; padding: 4.5rem max(2rem,calc((100vw - var(--sidebar) - var(--max))/2 + 2rem)) 3.5rem;
-      color: white; background: linear-gradient(125deg,#142015 0%,#203d24 58%,#4c8c20 100%);
-      border-bottom: .45rem solid var(--green2);
-    }
-    .eyebrow { color: #b9e99c; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; font-size: .78rem; }
-    h1 { margin: .4rem 0 .75rem; max-width: 18ch; font-size: clamp(2.25rem,5vw,4.4rem); line-height: 1.02; letter-spacing: -.045em; }
-    .lede { max-width: 48rem; font-size: 1.13rem; color: #e4eee1; }
-    .hero-meta { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1.2rem; }
-    .pill { border: 1px solid #759575; border-radius: 99rem; padding: .28rem .65rem; font-size: .78rem; color: #edf7e9; }
-    section { padding: 2.4rem 0 .8rem; border-top: 1px solid var(--line); }
-    section:first-of-type { border-top: 0; }
-    h2 { margin: 0 0 1rem; font-size: clamp(1.65rem,3vw,2.45rem); line-height: 1.15; letter-spacing: -.025em; }
-    h3 { margin: 1.8rem 0 .55rem; font-size: 1.28rem; line-height: 1.25; }
-    h4 { margin: 1.4rem 0 .35rem; font-size: 1.02rem; }
-    p { margin: .55rem 0 1rem; }
-    ul, ol { padding-left: 1.35rem; }
-    li { margin: .3rem 0; }
-    code { font-family: ui-monospace,SFMono-Regular,Consolas,monospace; font-size: .9em; }
-    :not(pre) > code { background: #e7ece5; border: 1px solid #d3dbd0; padding: .08em .3em; border-radius: .25rem; }
-    pre {
-      position: relative; overflow: auto; margin: .8rem 0 1.2rem; padding: 1rem 1.1rem;
-      background: var(--code); color: var(--codeink); border-radius: .55rem; border-left: .3rem solid var(--green2);
-      line-height: 1.45; tab-size: 4;
-    }
-    pre code { font-size: .84rem; }
-    .copy {
-      position: absolute; right: .45rem; top: .4rem; border: 1px solid #536458; border-radius: .3rem;
-      background: #243129; color: white; padding: .2rem .45rem; font-size: .7rem; cursor: pointer;
-    }
-    .grid2, .grid3 { display: grid; gap: 1rem; margin: 1rem 0; }
-    .grid2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .grid3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
-    .card { padding: 1rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--paper); }
-    .card h3, .card h4 { margin-top: 0; }
-    .callout { margin: 1rem 0; padding: .85rem 1rem; border-left: .28rem solid var(--blue); background: var(--bluepale); }
-    .callout.warn { border-color: var(--amber); background: var(--amberpale); }
-    .callout.critical { border-color: var(--red); background: #fff0f0; }
-    .callout strong:first-child { display: inline-block; margin-right: .25rem; }
-    .definition {
-      margin: 1rem 0; padding: 1rem 1.1rem; background: var(--paper);
-      border: 1px solid var(--line); border-top: .28rem solid var(--green2); border-radius: .45rem;
-    }
-    .definition .label {
-      display: block; color: var(--green); font-size: .72rem; font-weight: 800;
-      letter-spacing: .09em; text-transform: uppercase; margin-bottom: .25rem;
-    }
-    .not-confuse {
-      margin: 1rem 0; padding: .9rem 1rem; background: #fff8e9;
-      border: 1px solid #ead29d; border-left: .28rem solid var(--amber); border-radius: .35rem;
-    }
-    .not-confuse::before {
-      content: "Do not confuse: "; font-weight: 800; color: var(--amber);
-    }
-    .walkthrough {
-      margin: 1rem 0 1.4rem; padding: 1rem 1.1rem; background: #f0f7fb;
-      border: 1px solid #c8dfe7; border-radius: .5rem;
-    }
-    .walkthrough > strong:first-child { color: var(--blue); }
-    table { width: 100%; border-collapse: collapse; margin: .8rem 0 1.25rem; background: var(--paper); font-size: .91rem; }
-    th, td { text-align: left; vertical-align: top; border: 1px solid var(--line); padding: .55rem .65rem; }
-    th { background: #e9efe6; }
-    .table-wrap { overflow-x: auto; }
-    figure { margin: 1.25rem 0 1.6rem; padding: .8rem; border: 1px solid var(--line); border-radius: .55rem; background: white; }
-    figure img { display: block; max-width: 100%; max-height: 42rem; margin: 0 auto; object-fit: contain; }
-    figcaption { color: var(--muted); font-size: .78rem; margin-top: .65rem; }
-    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin: 1rem 0; }
-    .flow span { padding: .5rem .7rem; background: var(--pale); border: 1px solid #bcd7aa; border-radius: .4rem; font-weight: 650; }
-    .flow i { color: var(--green); font-style: normal; font-size: 1.25rem; }
-    .term { font-weight: 750; color: #1e4e25; }
-    .small { color: var(--muted); font-size: .84rem; }
-    .lab { border-left: .3rem solid var(--green2); padding-left: 1rem; margin: 1.5rem 0 2.2rem; }
-    .lab h3 { margin-bottom: .25rem; }
-    .checklist li::marker { color: var(--green); }
-    details { margin: .65rem 0; padding: .55rem .75rem; border: 1px solid var(--line); border-radius: .4rem; background: white; }
-    summary { cursor: pointer; font-weight: 700; }
-    footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--line); color: var(--muted); font-size: .85rem; }
-    @media (max-width: 900px) {
-      nav { position: static; width: auto; max-height: none; border-right: 0; border-bottom: 4px solid var(--green2); columns: 2; }
-      nav .brand, nav .sub { column-span: all; }
-      main { margin-left: 0; padding: 0 1rem 4rem; }
-      .hero { margin: 0 -1rem 1.5rem; padding: 3rem 1.25rem 2.5rem; }
-      .grid2, .grid3 { grid-template-columns: 1fr; }
-    }
-    @media print {
-      nav, .copy { display: none !important; }
-      main { margin: 0; padding: 0; }
-      .hero { margin: 0 0 1rem; padding: 1rem; color: #111; background: white; border: 0; }
-      .hero .lede, .hero .eyebrow, .hero .pill { color: #222; }
-      section { break-before: page; }
-      figure, pre, table { break-inside: avoid; }
-      details { display: block; }
-      details > * { display: block; }
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Beginner-first notes for GPU hardware, CUDA software, OMSCS GPU Modules 1-3, and NVIDIA CUDA Programming Guide Part 1."
+    >
+    <title>GPU Hardware & CUDA Software — Foundations and Labs</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7f2;
+        --paper: #ffffff;
+        --ink: #152017;
+        --muted: #536158;
+        --line: #d9dfd5;
+        --green: #4c8c20;
+        --green2: #76b900;
+        --pale: #eef7e8;
+        --blue: #0d6371;
+        --bluepale: #e9f6f7;
+        --amber: #9b5d00;
+        --amberpale: #fff5df;
+        --red: #9c2f2f;
+        --code: #101713;
+        --codeink: #e8f2ea;
+        --sidebar: 17rem;
+        --max: 72rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 1rem;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 16px/1.62 system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+      a {
+        color: var(--blue);
+        text-decoration-thickness: 0.08em;
+        text-underline-offset: 0.15em;
+      }
+      a:hover {
+        color: var(--green);
+      }
+      nav {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: var(--sidebar);
+        overflow: auto;
+        padding: 1.25rem 1rem 3rem;
+        background: #142015;
+        color: #eaf3e7;
+        border-right: 4px solid var(--green2);
+      }
+      nav .brand {
+        font-weight: 800;
+        font-size: 1.1rem;
+        line-height: 1.25;
+        margin-bottom: 0.35rem;
+      }
+      nav .sub {
+        color: #aebcab;
+        font-size: 0.78rem;
+        margin-bottom: 1rem;
+      }
+      nav a {
+        display: block;
+        color: #dce9d8;
+        text-decoration: none;
+        padding: 0.28rem 0.5rem;
+        border-radius: 0.35rem;
+        font-size: 0.87rem;
+      }
+      nav a:hover,
+      nav a.active {
+        color: #fff;
+        background: #2b422d;
+      }
+      nav .group {
+        margin-top: 0.75rem;
+        color: #83c956;
+        padding-left: 0.5rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      main {
+        margin-left: var(--sidebar);
+        padding: 0 2rem 5rem;
+      }
+      article {
+        max-width: var(--max);
+        margin: 0 auto;
+      }
+      .hero {
+        margin: 0 -2rem 2rem;
+        padding: 4.5rem max(2rem, calc((100vw - var(--sidebar) - var(--max)) / 2 + 2rem)) 3.5rem;
+        color: white;
+        background: linear-gradient(125deg, #142015 0%, #203d24 58%, #4c8c20 100%);
+        border-bottom: 0.45rem solid var(--green2);
+      }
+      .eyebrow {
+        color: #b9e99c;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        font-size: 0.78rem;
+      }
+      h1 {
+        margin: 0.4rem 0 0.75rem;
+        max-width: 18ch;
+        font-size: clamp(2.25rem, 5vw, 4.4rem);
+        line-height: 1.02;
+        letter-spacing: -0.045em;
+      }
+      .lede {
+        max-width: 48rem;
+        font-size: 1.13rem;
+        color: #e4eee1;
+      }
+      .hero-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1.2rem;
+      }
+      .pill {
+        border: 1px solid #759575;
+        border-radius: 99rem;
+        padding: 0.28rem 0.65rem;
+        font-size: 0.78rem;
+        color: #edf7e9;
+      }
+      section {
+        padding: 2.4rem 0 0.8rem;
+        border-top: 1px solid var(--line);
+      }
+      section:first-of-type {
+        border-top: 0;
+      }
+      h2 {
+        margin: 0 0 1rem;
+        font-size: clamp(1.65rem, 3vw, 2.45rem);
+        line-height: 1.15;
+        letter-spacing: -0.025em;
+      }
+      h3 {
+        margin: 1.8rem 0 0.55rem;
+        font-size: 1.28rem;
+        line-height: 1.25;
+      }
+      h4 {
+        margin: 1.4rem 0 0.35rem;
+        font-size: 1.02rem;
+      }
+      p {
+        margin: 0.55rem 0 1rem;
+      }
+      ul,
+      ol {
+        padding-left: 1.35rem;
+      }
+      li {
+        margin: 0.3rem 0;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 0.9em;
+      }
+      :not(pre) > code {
+        background: #e7ece5;
+        border: 1px solid #d3dbd0;
+        padding: 0.08em 0.3em;
+        border-radius: 0.25rem;
+      }
+      pre {
+        position: relative;
+        overflow: auto;
+        margin: 0.8rem 0 1.2rem;
+        padding: 1rem 1.1rem;
+        background: var(--code);
+        color: var(--codeink);
+        border-radius: 0.55rem;
+        border-left: 0.3rem solid var(--green2);
+        line-height: 1.45;
+        tab-size: 4;
+      }
+      pre code {
+        font-size: 0.84rem;
+      }
+      .copy {
+        position: absolute;
+        right: 0.45rem;
+        top: 0.4rem;
+        border: 1px solid #536458;
+        border-radius: 0.3rem;
+        background: #243129;
+        color: white;
+        padding: 0.2rem 0.45rem;
+        font-size: 0.7rem;
+        cursor: pointer;
+      }
+      .grid2,
+      .grid3 {
+        display: grid;
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .card {
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 0.55rem;
+        background: var(--paper);
+      }
+      .card h3,
+      .card h4 {
+        margin-top: 0;
+      }
+      .callout {
+        margin: 1rem 0;
+        padding: 0.85rem 1rem;
+        border-left: 0.28rem solid var(--blue);
+        background: var(--bluepale);
+      }
+      .callout.warn {
+        border-color: var(--amber);
+        background: var(--amberpale);
+      }
+      .callout.critical {
+        border-color: var(--red);
+        background: #fff0f0;
+      }
+      .callout strong:first-child {
+        display: inline-block;
+        margin-right: 0.25rem;
+      }
+      .definition {
+        margin: 1rem 0;
+        padding: 1rem 1.1rem;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-top: 0.28rem solid var(--green2);
+        border-radius: 0.45rem;
+      }
+      .definition .label {
+        display: block;
+        color: var(--green);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+      }
+      .not-confuse {
+        margin: 1rem 0;
+        padding: 0.9rem 1rem;
+        background: #fff8e9;
+        border: 1px solid #ead29d;
+        border-left: 0.28rem solid var(--amber);
+        border-radius: 0.35rem;
+      }
+      .not-confuse::before {
+        content: 'Do not confuse: ';
+        font-weight: 800;
+        color: var(--amber);
+      }
+      .walkthrough {
+        margin: 1rem 0 1.4rem;
+        padding: 1rem 1.1rem;
+        background: #f0f7fb;
+        border: 1px solid #c8dfe7;
+        border-radius: 0.5rem;
+      }
+      .walkthrough > strong:first-child {
+        color: var(--blue);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.8rem 0 1.25rem;
+        background: var(--paper);
+        font-size: 0.91rem;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        border: 1px solid var(--line);
+        padding: 0.55rem 0.65rem;
+      }
+      th {
+        background: #e9efe6;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      figure {
+        margin: 1.25rem 0 1.6rem;
+        padding: 0.8rem;
+        border: 1px solid var(--line);
+        border-radius: 0.55rem;
+        background: white;
+      }
+      figure img {
+        display: block;
+        max-width: 100%;
+        max-height: 42rem;
+        margin: 0 auto;
+        object-fit: contain;
+      }
+      figcaption {
+        color: var(--muted);
+        font-size: 0.78rem;
+        margin-top: 0.65rem;
+      }
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 1rem 0;
+      }
+      .flow span {
+        padding: 0.5rem 0.7rem;
+        background: var(--pale);
+        border: 1px solid #bcd7aa;
+        border-radius: 0.4rem;
+        font-weight: 650;
+      }
+      .flow i {
+        color: var(--green);
+        font-style: normal;
+        font-size: 1.25rem;
+      }
+      .term {
+        font-weight: 750;
+        color: #1e4e25;
+      }
+      .small {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+      .lab {
+        border-left: 0.3rem solid var(--green2);
+        padding-left: 1rem;
+        margin: 1.5rem 0 2.2rem;
+      }
+      .lab h3 {
+        margin-bottom: 0.25rem;
+      }
+      .checklist li::marker {
+        color: var(--green);
+      }
+      details {
+        margin: 0.65rem 0;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid var(--line);
+        border-radius: 0.4rem;
+        background: white;
+      }
+      summary {
+        cursor: pointer;
+        font-weight: 700;
+      }
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--line);
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 900px) {
+        nav {
+          position: static;
+          width: auto;
+          max-height: none;
+          border-right: 0;
+          border-bottom: 4px solid var(--green2);
+          columns: 2;
+        }
+        nav .brand,
+        nav .sub {
+          column-span: all;
+        }
+        main {
+          margin-left: 0;
+          padding: 0 1rem 4rem;
+        }
+        .hero {
+          margin: 0 -1rem 1.5rem;
+          padding: 3rem 1.25rem 2.5rem;
+        }
+        .grid2,
+        .grid3 {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media print {
+        nav,
+        .copy {
+          display: none !important;
+        }
+        main {
+          margin: 0;
+          padding: 0;
+        }
+        .hero {
+          margin: 0 0 1rem;
+          padding: 1rem;
+          color: #111;
+          background: white;
+          border: 0;
+        }
+        .hero .lede,
+        .hero .eyebrow,
+        .hero .pill {
+          color: #222;
+        }
+        section {
+          break-before: page;
+        }
+        figure,
+        pre,
+        table {
+          break-inside: avoid;
+        }
+        details {
+          display: block;
+        }
+        details > * {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
 <nav aria-label="Study guide contents">
   <div class="brand">GPU H/W + S/W</div>
   <div class="sub">Beginner foundations · Modules 1–3 · CUDA 13.3</div>
@@ -1707,3 +2027,4 @@ compute-sanitizer --tool memcheck .&#92;vector_add.exe</code></pre>
 </script>
 </body>
 </html>
+
